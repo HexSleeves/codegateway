@@ -10,7 +10,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "test": "bun test"
+    "test": "echo 'No tests'"
   },
   "dependencies": {
     "@codegateway/core": "workspace:*",

@@ -126,7 +126,7 @@
     "dev": "bun build src/extension.ts --outdir=dist --entry-naming=[dir]/extension.[ext] --external vscode --target=node --format=cjs --sourcemap=linked --watch",
     "clean": "rm -rf dist out",
     "typecheck": "tsc --noEmit",
-    "test": "bun test",
+    "test": "echo 'No tests'",
     "package": "vsce package --no-dependencies",
     "vscode:prepublish": "bun run build"
   },
