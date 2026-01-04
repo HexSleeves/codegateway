@@ -28,6 +28,7 @@ export type PatternType =
   | 'swallowed_error'
   | 'missing_error_boundary'
   | 'generic_error_message'
+  | 'try_without_catch'
   // Security
   | 'hardcoded_secret'
   | 'sql_concatenation'

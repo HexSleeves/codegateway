@@ -31,6 +31,10 @@ export const PATTERN_METADATA: Record<PatternType, { description: string; defaul
     description: 'Error message provides no debugging context',
     defaultSeverity: 'info',
   },
+  try_without_catch: {
+    description: 'try...finally without catch clause',
+    defaultSeverity: 'info',
+  },
 
   // Security
   hardcoded_secret: {

@@ -97,6 +97,24 @@ describe('ErrorHandlingDetector', () => {
     expect(patterns.filter(p => p.type === 'swallowed_error').length).toBe(0);
   });
 
+  it('should detect try without catch', async () => {
+    const code = `
+      function cleanup() {
+        try {
+          acquireLock();
+          doRiskyWork();
+        } finally {
+          releaseLock();
+        }
+      }
+    `;
+
+    const patterns = await detector.analyze(code, 'test.ts');
+
+    expect(patterns.some(p => p.type === 'try_without_catch')).toBe(true);
+    expect(patterns.find(p => p.type === 'try_without_catch')?.severity).toBe('info');
+  });
+
   it('should detect missing error boundaries in async functions', async () => {
     const code = `
       async function fetchData() {

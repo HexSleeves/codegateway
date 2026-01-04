@@ -1,4 +1,4 @@
-import { Project, SyntaxKind, SourceFile, Node, Block, CatchClause } from 'ts-morph';
+import { Project, SyntaxKind, SourceFile, Node, Block } from 'ts-morph';
 import type { DetectedPattern, PatternType, SupportedLanguage } from '@codegateway/shared';
 import { GENERIC_ERROR_MESSAGES } from '@codegateway/shared';
 import { BaseDetector } from './base.js';
@@ -13,6 +13,7 @@ export class ErrorHandlingDetector extends BaseDetector {
     'swallowed_error',
     'missing_error_boundary',
     'generic_error_message',
+    'try_without_catch',
   ];
   readonly languages: SupportedLanguage[] = ['typescript', 'javascript'];
 
@@ -37,6 +38,7 @@ export class ErrorHandlingDetector extends BaseDetector {
     try {
       patterns.push(...this.detectEmptyCatchBlocks(sourceFile, filePath));
       patterns.push(...this.detectSwallowedErrors(sourceFile, filePath));
+      patterns.push(...this.detectTryWithoutCatch(sourceFile, filePath));
       patterns.push(...this.detectMissingErrorBoundaries(sourceFile, filePath));
       patterns.push(...this.detectGenericErrorMessages(sourceFile, filePath));
     } finally {
@@ -120,6 +122,50 @@ export class ErrorHandlingDetector extends BaseDetector {
             }
           )
         );
+      }
+    });
+
+    return patterns;
+  }
+
+  private detectTryWithoutCatch(
+    sourceFile: SourceFile,
+    filePath: string
+  ): DetectedPattern[] {
+    const patterns: DetectedPattern[] = [];
+
+    sourceFile.getDescendantsOfKind(SyntaxKind.TryStatement).forEach((tryStmt) => {
+      const catchClause = tryStmt.getCatchClause();
+      const finallyBlock = tryStmt.getFinallyBlock();
+
+      // try...finally without catch
+      if (!catchClause && finallyBlock) {
+        const tryBlock = tryStmt.getTryBlock();
+
+        // Check if the try block contains operations that could throw
+        const hasAwait = tryBlock.getDescendantsOfKind(SyntaxKind.AwaitExpression).length > 0;
+        const hasThrow = tryBlock.getDescendantsOfKind(SyntaxKind.ThrowStatement).length > 0;
+        const hasCalls = tryBlock.getDescendantsOfKind(SyntaxKind.CallExpression).length > 0;
+
+        if (hasAwait || hasThrow || hasCalls) {
+          patterns.push(
+            this.createPattern(
+              'try_without_catch' as any,
+              filePath,
+              tryStmt.getStartLineNumber(),
+              tryStmt.getEndLineNumber(),
+              'try...finally without catch - errors will propagate',
+              'This try block has a finally clause but no catch. Errors will propagate to the caller. ' +
+                'This is valid for cleanup patterns, but consider if errors should be handled here.',
+              this.truncateCode(tryStmt.getText(), 200),
+              {
+                severity: 'info',
+                suggestion: 'Add a catch clause if errors should be handled at this level, or document why propagation is intended',
+                confidence: 0.6,
+              }
+            )
+          );
+        }
       }
     });
 
