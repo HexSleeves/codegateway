@@ -1,0 +1,7 @@
+# Bun configuration for CodeGateway
+
+[install]
+exact = true
+
+[test]
+coverage = false

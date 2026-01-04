@@ -59,15 +59,18 @@ CodeGateway detects 20+ pattern types across categories:
 git clone https://github.com/codegateway/codegateway.git
 cd codegateway
 
+# Install Bun (if not already installed)
+curl -fsSL https://bun.sh/install | bash
+
 # Install dependencies
-pnpm install
+bun install
 
 # Build all packages
-pnpm build
+bun run build
 
 # Package the extension
 cd packages/extension
-pnpm package
+bun run package
 ```
 
 Then install the `.vsix` file in VS Code.
@@ -121,16 +124,16 @@ codegateway/
 
 ```bash
 # Install dependencies
-pnpm install
+bun install
 
 # Build all packages
-pnpm build
+bun run build
 
 # Run tests
-pnpm test
+bun test
 
 # Watch mode for development
-pnpm dev
+bun run dev
 ```
 
 ### Running the Extension in Development

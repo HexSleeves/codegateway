@@ -3,22 +3,29 @@
   "version": "1.0.0",
   "description": "AI Code Review Trust Layer - Spell-check for AI-assisted coding",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "clean": "turbo run clean && rm -rf node_modules",
-    "typecheck": "turbo run typecheck"
+    "build": "bun run build:shared && bun run build:core && bun run build:cli && bun run build:extension",
+    "build:shared": "cd packages/shared && bun run build",
+    "build:core": "cd packages/core && bun run build",
+    "build:cli": "cd packages/cli && bun run build",
+    "build:extension": "cd packages/extension && bun run build",
+    "dev": "bun run --parallel dev:shared dev:core",
+    "dev:shared": "cd packages/shared && bun run dev",
+    "dev:core": "cd packages/core && bun run dev",
+    "test": "bun run test:core",
+    "test:core": "cd packages/core && bun test",
+    "clean": "rm -rf packages/*/dist packages/*/out node_modules/.cache",
+    "typecheck": "tsc --build"
   },
   "devDependencies": {
-    "turbo": "^2.0.0",
-    "typescript": "^5.3.0",
+    "@types/bun": "latest",
     "@types/node": "^20.0.0",
-    "prettier": "^3.2.0",
-    "eslint": "^8.56.0"
+    "typescript": "^5.3.0",
+    "prettier": "^3.2.0"
   },
-  "packageManager": "pnpm@9.0.0",
   "engines": {
     "node": ">=20.0.0"
   }

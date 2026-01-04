@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import { Analyzer } from '../src/analyzer.js';
 import { NamingPatternDetector } from '../src/detectors/naming.js';
 import { ErrorHandlingDetector } from '../src/detectors/errorHandling.js';
