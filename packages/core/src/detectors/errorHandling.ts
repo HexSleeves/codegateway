@@ -138,6 +138,28 @@ export class ErrorHandlingDetector extends BaseDetector {
       const catchClause = tryStmt.getCatchClause();
       const finallyBlock = tryStmt.getFinallyBlock();
 
+      // try without catch or finally - syntax error
+      if (!catchClause && !finallyBlock) {
+        patterns.push(
+          this.createPattern(
+            'empty_catch_block' as any, // Reuse as it's similar severity
+            filePath,
+            tryStmt.getStartLineNumber(),
+            tryStmt.getEndLineNumber(),
+            'try block without catch or finally - syntax error',
+            'A try block must have either a catch clause, a finally clause, or both. ' +
+              'This code will fail to parse at runtime.',
+            this.truncateCode(tryStmt.getText(), 200),
+            {
+              severity: 'critical',
+              suggestion: 'Add a catch clause to handle errors, or a finally clause for cleanup',
+              confidence: 1.0,
+            }
+          )
+        );
+        return; // Skip other checks for this try statement
+      }
+
       // try...finally without catch
       if (!catchClause && finallyBlock) {
         const tryBlock = tryStmt.getTryBlock();

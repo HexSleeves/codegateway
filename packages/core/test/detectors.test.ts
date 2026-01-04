@@ -97,6 +97,21 @@ describe('ErrorHandlingDetector', () => {
     expect(patterns.filter(p => p.type === 'swallowed_error').length).toBe(0);
   });
 
+  it('should detect bare try block as syntax error', async () => {
+    const code = `
+      function cleanup() {
+        try {
+          doWork();
+        }
+      }
+    `;
+
+    const patterns = await detector.analyze(code, 'test.ts');
+
+    expect(patterns.some(p => p.description.includes('syntax error'))).toBe(true);
+    expect(patterns.find(p => p.description.includes('syntax error'))?.severity).toBe('critical');
+  });
+
   it('should detect try without catch', async () => {
     const code = `
       function cleanup() {
