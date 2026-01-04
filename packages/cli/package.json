@@ -1,0 +1,25 @@
+{
+  "name": "@codegateway/cli",
+  "version": "1.0.0",
+  "description": "CLI for CodeGateway",
+  "main": "dist/index.js",
+  "bin": {
+    "codegateway": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@codegateway/core": "workspace:*",
+    "@codegateway/shared": "workspace:*",
+    "commander": "^12.0.0",
+    "chalk": "^5.3.0",
+    "glob": "^10.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@types/node": "^20.0.0"
+  }
+}

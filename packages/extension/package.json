@@ -1,0 +1,145 @@
+{
+  "name": "codegateway",
+  "displayName": "CodeGateway - AI Code Review Trust Layer",
+  "description": "Spell-check for AI-assisted coding - detect AI patterns and verify comprehension",
+  "version": "1.0.0",
+  "publisher": "codegateway",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codegateway/codegateway"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Other"
+  ],
+  "keywords": [
+    "ai",
+    "code review",
+    "code quality",
+    "copilot",
+    "cursor",
+    "linter"
+  ],
+  "activationEvents": [
+    "onLanguage:typescript",
+    "onLanguage:javascript",
+    "onLanguage:typescriptreact",
+    "onLanguage:javascriptreact"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "codegateway.analyzeFile",
+        "title": "CodeGateway: Analyze Current File"
+      },
+      {
+        "command": "codegateway.analyzeWorkspace",
+        "title": "CodeGateway: Analyze Workspace"
+      },
+      {
+        "command": "codegateway.clearDiagnostics",
+        "title": "CodeGateway: Clear All Diagnostics"
+      },
+      {
+        "command": "codegateway.showDashboard",
+        "title": "CodeGateway: Show Dashboard"
+      }
+    ],
+    "configuration": {
+      "title": "CodeGateway",
+      "properties": {
+        "codegateway.enabledPatterns": {
+          "type": "array",
+          "default": [
+            "generic_variable_name",
+            "inconsistent_naming",
+            "empty_catch_block",
+            "swallowed_error",
+            "missing_error_boundary",
+            "generic_error_message",
+            "hardcoded_secret",
+            "sql_concatenation",
+            "unsafe_eval",
+            "insecure_random",
+            "magic_number",
+            "todo_without_context",
+            "commented_out_code",
+            "overly_complex_function",
+            "placeholder_implementation"
+          ],
+          "description": "Pattern types to detect"
+        },
+        "codegateway.minSeverity": {
+          "type": "string",
+          "enum": ["info", "warning", "critical"],
+          "default": "info",
+          "description": "Minimum severity level to show"
+        },
+        "codegateway.excludePaths": {
+          "type": "array",
+          "default": [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/.git/**"
+          ],
+          "description": "Glob patterns for paths to exclude"
+        },
+        "codegateway.analyzeOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Analyze files automatically on save"
+        },
+        "codegateway.analyzeOnOpen": {
+          "type": "boolean",
+          "default": true,
+          "description": "Analyze files automatically when opened"
+        },
+        "codegateway.showInlineHints": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show inline decorations for detected patterns"
+        },
+        "codegateway.debounceMs": {
+          "type": "number",
+          "default": 500,
+          "description": "Debounce delay for analysis (ms)"
+        }
+      }
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "command": "codegateway.analyzeFile",
+          "group": "codegateway"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node --sourcemap",
+    "dev": "pnpm build --watch",
+    "clean": "rm -rf dist out",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "package": "vsce package --no-dependencies",
+    "vscode:prepublish": "pnpm build"
+  },
+  "dependencies": {
+    "@codegateway/core": "workspace:*",
+    "@codegateway/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.2.0",
+    "@vscode/vsce": "^2.22.0"
+  }
+}
