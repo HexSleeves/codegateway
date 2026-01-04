@@ -12,6 +12,17 @@
         "typescript": "^5.3.0",
       },
     },
+    "demo": {
+      "name": "@codegateway/demo",
+      "version": "1.0.0",
+      "dependencies": {
+        "@codegateway/core": "workspace:*",
+        "@codegateway/shared": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+      },
+    },
     "packages/cli": {
       "name": "@codegateway/cli",
       "version": "1.0.0",
@@ -93,6 +104,8 @@
     "@codegateway/cli": ["@codegateway/cli@workspace:packages/cli"],
 
     "@codegateway/core": ["@codegateway/core@workspace:packages/core"],
+
+    "@codegateway/demo": ["@codegateway/demo@workspace:demo"],
 
     "@codegateway/shared": ["@codegateway/shared@workspace:packages/shared"],
 
