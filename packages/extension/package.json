@@ -48,6 +48,22 @@
       {
         "command": "codegateway.showDashboard",
         "title": "CodeGateway: Show Dashboard"
+      },
+      {
+        "command": "codegateway.installGitHook",
+        "title": "CodeGateway: Install Git Hook"
+      },
+      {
+        "command": "codegateway.uninstallGitHook",
+        "title": "CodeGateway: Uninstall Git Hook"
+      },
+      {
+        "command": "codegateway.analyzeStagedFiles",
+        "title": "CodeGateway: Analyze Staged Files"
+      },
+      {
+        "command": "codegateway.triggerCheckpoint",
+        "title": "CodeGateway: Trigger Comprehension Checkpoint"
       }
     ],
     "configuration": {
@@ -109,6 +125,21 @@
           "type": "number",
           "default": 500,
           "description": "Debounce delay for analysis (ms)"
+        },
+        "codegateway.blockOnCritical": {
+          "type": "boolean",
+          "default": true,
+          "description": "Block commit when critical issues are found"
+        },
+        "codegateway.blockOnWarning": {
+          "type": "boolean",
+          "default": false,
+          "description": "Block commit when warnings are found"
+        },
+        "codegateway.showCheckpoint": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show comprehension checkpoint before commit"
         }
       }
     },

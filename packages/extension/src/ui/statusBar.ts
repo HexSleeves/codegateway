@@ -1,5 +1,5 @@
+import type { DetectedPattern } from '@codegateway/shared';
 import * as vscode from 'vscode';
-import type { DetectedPattern, Severity } from '@codegateway/shared';
 
 /**
  * Manages the status bar item showing pattern counts
@@ -8,10 +8,7 @@ export class StatusBarManager {
   private statusBarItem: vscode.StatusBarItem;
 
   constructor() {
-    this.statusBarItem = vscode.window.createStatusBarItem(
-      vscode.StatusBarAlignment.Right,
-      100
-    );
+    this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
     this.statusBarItem.command = 'codegateway.showDashboard';
     this.statusBarItem.tooltip = 'CodeGateway - Click to open dashboard';
     this.reset();
@@ -47,7 +44,8 @@ export class StatusBarManager {
     }
 
     const total = patterns.length;
-    this.statusBarItem.tooltip = `CodeGateway: ${total} pattern${total !== 1 ? 's' : ''} detected\n` +
+    this.statusBarItem.tooltip =
+      `CodeGateway: ${total} pattern${total !== 1 ? 's' : ''} detected\n` +
       `Critical: ${counts.critical}\n` +
       `Warning: ${counts.warning}\n` +
       `Info: ${counts.info}\n\n` +

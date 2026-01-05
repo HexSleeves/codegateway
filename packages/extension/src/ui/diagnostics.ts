@@ -1,5 +1,5 @@
-import * as vscode from 'vscode';
 import type { DetectedPattern, Severity } from '@codegateway/shared';
+import * as vscode from 'vscode';
 
 /**
  * Manages VS Code diagnostics (Problems panel) for CodeGateway
@@ -18,16 +18,13 @@ export class DiagnosticsManager {
     const diagnostics: vscode.Diagnostic[] = patterns.map((pattern) => {
       const range = new vscode.Range(
         new vscode.Position(pattern.startLine - 1, pattern.startColumn ?? 0),
-        new vscode.Position(
-          pattern.endLine - 1,
-          pattern.endColumn ?? Number.MAX_SAFE_INTEGER
-        )
+        new vscode.Position(pattern.endLine - 1, pattern.endColumn ?? Number.MAX_SAFE_INTEGER),
       );
 
       const diagnostic = new vscode.Diagnostic(
         range,
         `${pattern.description}\n\n${pattern.explanation}`,
-        this.severityToDiagnosticSeverity(pattern.severity)
+        this.severityToDiagnosticSeverity(pattern.severity),
       );
 
       diagnostic.source = 'CodeGateway';
@@ -38,7 +35,7 @@ export class DiagnosticsManager {
         diagnostic.relatedInformation = [
           new vscode.DiagnosticRelatedInformation(
             new vscode.Location(uri, range),
-            `Suggestion: ${pattern.suggestion}`
+            `Suggestion: ${pattern.suggestion}`,
           ),
         ];
       }
@@ -76,7 +73,6 @@ export class DiagnosticsManager {
         return vscode.DiagnosticSeverity.Error;
       case 'warning':
         return vscode.DiagnosticSeverity.Warning;
-      case 'info':
       default:
         return vscode.DiagnosticSeverity.Information;
     }

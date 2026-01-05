@@ -1,10 +1,10 @@
-import { Project, SyntaxKind, SourceFile, Node } from 'ts-morph';
 import type { DetectedPattern, PatternType, SupportedLanguage } from '@codegateway/shared';
 import {
+  COORDINATE_VARIABLE_NAMES,
   GENERIC_VARIABLE_NAMES,
   LOOP_VARIABLE_NAMES,
-  COORDINATE_VARIABLE_NAMES,
 } from '@codegateway/shared';
+import { type Node, Project, type SourceFile, SyntaxKind } from 'ts-morph';
 import { BaseDetector } from './base.js';
 
 /**
@@ -32,11 +32,7 @@ export class NamingPatternDetector extends BaseDetector {
     const patterns: DetectedPattern[] = [];
 
     // Create a source file from the content
-    const sourceFile = this.project.createSourceFile(
-      filePath,
-      content,
-      { overwrite: true }
-    );
+    const sourceFile = this.project.createSourceFile(filePath, content, { overwrite: true });
 
     try {
       // Check variable declarations
@@ -55,10 +51,7 @@ export class NamingPatternDetector extends BaseDetector {
     return patterns;
   }
 
-  private analyzeVariableDeclarations(
-    sourceFile: SourceFile,
-    filePath: string
-  ): DetectedPattern[] {
+  private analyzeVariableDeclarations(sourceFile: SourceFile, filePath: string): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
 
     sourceFile.getDescendantsOfKind(SyntaxKind.VariableDeclaration).forEach((decl) => {
@@ -84,18 +77,15 @@ export class NamingPatternDetector extends BaseDetector {
             severity: 'warning',
             suggestion: this.suggestBetterName(name, decl),
             confidence: 0.85,
-          }
-        )
+          },
+        ),
       );
     });
 
     return patterns;
   }
 
-  private analyzeFunctionParameters(
-    sourceFile: SourceFile,
-    filePath: string
-  ): DetectedPattern[] {
+  private analyzeFunctionParameters(sourceFile: SourceFile, filePath: string): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
 
     sourceFile.getDescendantsOfKind(SyntaxKind.Parameter).forEach((param) => {
@@ -124,18 +114,15 @@ export class NamingPatternDetector extends BaseDetector {
           {
             severity: 'warning',
             confidence: 0.8,
-          }
-        )
+          },
+        ),
       );
     });
 
     return patterns;
   }
 
-  private analyzeNamingConsistency(
-    sourceFile: SourceFile,
-    filePath: string
-  ): DetectedPattern[] {
+  private analyzeNamingConsistency(sourceFile: SourceFile, filePath: string): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
 
     // Collect all identifiers and their naming conventions
@@ -189,8 +176,8 @@ export class NamingPatternDetector extends BaseDetector {
               {
                 severity: 'info',
                 confidence: 0.7,
-              }
-            )
+              },
+            ),
           );
         });
     }
@@ -239,7 +226,9 @@ export class NamingPatternDetector extends BaseDetector {
         const methodName = callExpr
           .getFirstDescendantByKind(SyntaxKind.PropertyAccessExpression)
           ?.getName();
-        if (['map', 'filter', 'forEach', 'reduce', 'find', 'some', 'every'].includes(methodName ?? '')) {
+        if (
+          ['map', 'filter', 'forEach', 'reduce', 'find', 'some', 'every'].includes(methodName ?? '')
+        ) {
           return true;
         }
       }

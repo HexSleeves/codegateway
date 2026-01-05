@@ -1,8 +1,7 @@
+import { type AnalysisResult, Analyzer } from '@codegateway/core';
 import * as vscode from 'vscode';
-import { Analyzer, AnalysisResult } from '@codegateway/core';
-import type { DetectedPattern, Severity } from '@codegateway/shared';
 import { getConfig, getDebounceMs } from '../core/config';
-import { DiagnosticsManager, DecorationManager, StatusBarManager } from '../ui';
+import type { DecorationManager, DiagnosticsManager, StatusBarManager } from '../ui';
 
 /**
  * Manages file analysis and result presentation
@@ -18,7 +17,7 @@ export class FileAnalyzer {
   constructor(
     diagnosticsManager: DiagnosticsManager,
     decorationManager: DecorationManager,
-    statusBarManager: StatusBarManager
+    statusBarManager: StatusBarManager,
   ) {
     this.analyzer = new Analyzer();
     this.diagnosticsManager = diagnosticsManager;
@@ -77,9 +76,7 @@ export class FileAnalyzer {
     this.analysisCache.delete(uri);
     this.diagnosticsManager.clearDiagnostics(document.uri);
 
-    const editor = vscode.window.visibleTextEditors.find(
-      (e) => e.document.uri.toString() === uri
-    );
+    const editor = vscode.window.visibleTextEditors.find((e) => e.document.uri.toString() === uri);
     if (editor) {
       this.decorationManager.clearDecorations(editor);
     }
@@ -133,14 +130,10 @@ export class FileAnalyzer {
     this.statusBarManager.showAnalyzing();
 
     try {
-      const result = await this.analyzer.analyzeFile(
-        document.getText(),
-        document.uri.fsPath,
-        {
-          config,
-          minSeverity: config.minSeverityForCheckpoint,
-        }
-      );
+      const result = await this.analyzer.analyzeFile(document.getText(), document.uri.fsPath, {
+        config,
+        minSeverity: config.minSeverityForCheckpoint,
+      });
 
       // Cache result
       this.analysisCache.set(document.uri.toString(), result);
@@ -150,7 +143,7 @@ export class FileAnalyzer {
 
       // Update decorations if editor is visible
       const editor = vscode.window.visibleTextEditors.find(
-        (e) => e.document.uri.toString() === document.uri.toString()
+        (e) => e.document.uri.toString() === document.uri.toString(),
       );
       if (editor && config.showInlineHints) {
         this.decorationManager.applyDecorations(editor, result.patterns);

@@ -1,11 +1,11 @@
 import { EXTENSION_TO_LANGUAGE } from '../constants/index.js';
-import type { SupportedLanguage, Severity } from '../types/index.js';
+import type { Severity, SupportedLanguage } from '../types/index.js';
 
 /**
  * Detect language from file path
  */
 export function detectLanguage(filePath: string): SupportedLanguage | null {
-  const ext = '.' + filePath.split('.').pop();
+  const ext = `.${filePath.split('.').pop()}`;
   const language = EXTENSION_TO_LANGUAGE[ext];
   return (language as SupportedLanguage) ?? null;
 }
@@ -72,7 +72,7 @@ export function meetsSeverityThreshold(severity: Severity, minSeverity: Severity
  */
 export function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength - 3) + '...';
+  return `${text.slice(0, maxLength - 3)}...`;
 }
 
 /**
@@ -82,7 +82,7 @@ export function extractSnippet(
   content: string,
   startLine: number,
   endLine: number,
-  contextLines: number = 2
+  contextLines: number = 2,
 ): string {
   const lines = content.split('\n');
   const start = Math.max(0, startLine - 1 - contextLines);

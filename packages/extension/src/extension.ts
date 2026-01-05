@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { DiagnosticsManager, DecorationManager, StatusBarManager } from './ui';
 import { FileAnalyzer } from './analysis/fileAnalyzer';
-import { registerCommands } from './commands';
-import { isAnalyzeOnSaveEnabled, isAnalyzeOnOpenEnabled } from './core/config';
+import { registerCommands, registerGitCommands } from './commands';
+import { isAnalyzeOnOpenEnabled, isAnalyzeOnSaveEnabled } from './core/config';
+import { DecorationManager, DiagnosticsManager, StatusBarManager } from './ui';
 
 let fileAnalyzer: FileAnalyzer;
 let diagnosticsManager: DiagnosticsManager;
@@ -23,6 +23,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Register commands
   registerCommands(context, fileAnalyzer);
+  registerGitCommands(context);
 
   // Register event listeners
   registerEventListeners(context);
@@ -52,50 +53,30 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
       if (isAnalyzeOnOpenEnabled() && isSupportedDocument(document)) {
         fileAnalyzer.analyzeDocument(document);
       }
-    })
-  );
-
-  // Analyze on document save
-  context.subscriptions.push(
+    }),
     vscode.workspace.onDidSaveTextDocument((document) => {
       if (isAnalyzeOnSaveEnabled() && isSupportedDocument(document)) {
         fileAnalyzer.analyzeDocumentNow(document);
       }
-    })
-  );
-
-  // Analyze on document change (with debounce)
-  context.subscriptions.push(
+    }),
     vscode.workspace.onDidChangeTextDocument((event) => {
       if (isSupportedDocument(event.document)) {
         fileAnalyzer.analyzeDocument(event.document);
       }
-    })
-  );
-
-  // Update decorations when editor becomes visible
-  context.subscriptions.push(
+    }),
     vscode.window.onDidChangeActiveTextEditor((editor) => {
       if (editor && isSupportedDocument(editor.document)) {
         fileAnalyzer.updateDecorationsForEditor(editor);
       }
-    })
-  );
-
-  // Clear diagnostics when document is closed
-  context.subscriptions.push(
+    }),
     vscode.workspace.onDidCloseTextDocument((document) => {
       fileAnalyzer.clearAnalysis(document);
-    })
-  );
-
-  // Re-analyze when configuration changes
-  context.subscriptions.push(
+    }),
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration('codegateway')) {
         analyzeOpenDocuments();
       }
-    })
+    }),
   );
 }
 
@@ -114,11 +95,6 @@ function analyzeOpenDocuments(): void {
  * Check if a document is a supported language
  */
 function isSupportedDocument(document: vscode.TextDocument): boolean {
-  const supportedLanguages = [
-    'typescript',
-    'javascript',
-    'typescriptreact',
-    'javascriptreact',
-  ];
+  const supportedLanguages = ['typescript', 'javascript', 'typescriptreact', 'javascriptreact'];
   return supportedLanguages.includes(document.languageId);
 }

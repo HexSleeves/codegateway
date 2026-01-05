@@ -1,6 +1,6 @@
-import { Project, SyntaxKind, SourceFile, Node, Block } from 'ts-morph';
 import type { DetectedPattern, PatternType, SupportedLanguage } from '@codegateway/shared';
 import { GENERIC_ERROR_MESSAGES } from '@codegateway/shared';
+import { type Block, type Node, Project, type SourceFile, SyntaxKind } from 'ts-morph';
 import { BaseDetector } from './base.js';
 
 /**
@@ -48,10 +48,7 @@ export class ErrorHandlingDetector extends BaseDetector {
     return patterns;
   }
 
-  private detectEmptyCatchBlocks(
-    sourceFile: SourceFile,
-    filePath: string
-  ): DetectedPattern[] {
+  private detectEmptyCatchBlocks(sourceFile: SourceFile, filePath: string): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
 
     sourceFile.getDescendantsOfKind(SyntaxKind.CatchClause).forEach((catchClause) => {
@@ -75,8 +72,8 @@ export class ErrorHandlingDetector extends BaseDetector {
               suggestion: `catch (${errorParam}) {\n  console.error('Operation failed:', ${errorParam});\n  throw ${errorParam}; // or handle appropriately\n}`,
               confidence: 0.95,
               autoFixAvailable: true,
-            }
-          )
+            },
+          ),
         );
       }
     });
@@ -84,10 +81,7 @@ export class ErrorHandlingDetector extends BaseDetector {
     return patterns;
   }
 
-  private detectSwallowedErrors(
-    sourceFile: SourceFile,
-    filePath: string
-  ): DetectedPattern[] {
+  private detectSwallowedErrors(sourceFile: SourceFile, filePath: string): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
 
     sourceFile.getDescendantsOfKind(SyntaxKind.CatchClause).forEach((catchClause) => {
@@ -119,8 +113,8 @@ export class ErrorHandlingDetector extends BaseDetector {
               severity: 'warning',
               suggestion: `Consider logging the error: console.error('Operation failed:', ${errorParam});`,
               confidence: 0.85,
-            }
-          )
+            },
+          ),
         );
       }
     });
@@ -128,10 +122,7 @@ export class ErrorHandlingDetector extends BaseDetector {
     return patterns;
   }
 
-  private detectTryWithoutCatch(
-    sourceFile: SourceFile,
-    filePath: string
-  ): DetectedPattern[] {
+  private detectTryWithoutCatch(sourceFile: SourceFile, filePath: string): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
 
     sourceFile.getDescendantsOfKind(SyntaxKind.TryStatement).forEach((tryStmt) => {
@@ -142,7 +133,7 @@ export class ErrorHandlingDetector extends BaseDetector {
       if (!catchClause && !finallyBlock) {
         patterns.push(
           this.createPattern(
-            'empty_catch_block' as any, // Reuse as it's similar severity
+            'empty_catch_block',
             filePath,
             tryStmt.getStartLineNumber(),
             tryStmt.getEndLineNumber(),
@@ -154,8 +145,8 @@ export class ErrorHandlingDetector extends BaseDetector {
               severity: 'critical',
               suggestion: 'Add a catch clause to handle errors, or a finally clause for cleanup',
               confidence: 1.0,
-            }
-          )
+            },
+          ),
         );
         return; // Skip other checks for this try statement
       }
@@ -172,7 +163,7 @@ export class ErrorHandlingDetector extends BaseDetector {
         if (hasAwait || hasThrow || hasCalls) {
           patterns.push(
             this.createPattern(
-              'try_without_catch' as any,
+              'try_without_catch',
               filePath,
               tryStmt.getStartLineNumber(),
               tryStmt.getEndLineNumber(),
@@ -182,10 +173,11 @@ export class ErrorHandlingDetector extends BaseDetector {
               this.truncateCode(tryStmt.getText(), 200),
               {
                 severity: 'info',
-                suggestion: 'Add a catch clause if errors should be handled at this level, or document why propagation is intended',
+                suggestion:
+                  'Add a catch clause if errors should be handled at this level, or document why propagation is intended',
                 confidence: 0.6,
-              }
-            )
+              },
+            ),
           );
         }
       }
@@ -196,7 +188,7 @@ export class ErrorHandlingDetector extends BaseDetector {
 
   private detectMissingErrorBoundaries(
     sourceFile: SourceFile,
-    filePath: string
+    filePath: string,
   ): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
 
@@ -248,8 +240,8 @@ export class ErrorHandlingDetector extends BaseDetector {
               severity: 'warning',
               suggestion: 'Wrap await calls in try-catch or add .catch() handler',
               confidence: 0.75,
-            }
-          )
+            },
+          ),
         );
       }
     });
@@ -257,10 +249,7 @@ export class ErrorHandlingDetector extends BaseDetector {
     return patterns;
   }
 
-  private detectGenericErrorMessages(
-    sourceFile: SourceFile,
-    filePath: string
-  ): DetectedPattern[] {
+  private detectGenericErrorMessages(sourceFile: SourceFile, filePath: string): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
 
     // Find string literals
@@ -268,7 +257,7 @@ export class ErrorHandlingDetector extends BaseDetector {
       const text = literal.getLiteralText().toLowerCase();
 
       const isGeneric = GENERIC_ERROR_MESSAGES.some(
-        (msg) => text === msg || (text.length < 30 && text.includes(msg))
+        (msg) => text === msg || (text.length < 30 && text.includes(msg)),
       );
 
       if (!isGeneric) return;
@@ -291,8 +280,8 @@ export class ErrorHandlingDetector extends BaseDetector {
               severity: 'info',
               suggestion: 'Include operation name, input values, and specific failure reason',
               confidence: 0.7,
-            }
-          )
+            },
+          ),
         );
       }
     });
@@ -373,6 +362,6 @@ export class ErrorHandlingDetector extends BaseDetector {
 
   private truncateCode(code: string, maxLength: number): string {
     if (code.length <= maxLength) return code;
-    return code.slice(0, maxLength - 3) + '...';
+    return `${code.slice(0, maxLength - 3)}...`;
   }
 }

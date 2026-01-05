@@ -1,5 +1,5 @@
-import { Project, SyntaxKind, SourceFile, Node } from 'ts-morph';
 import type { DetectedPattern, PatternType, SupportedLanguage } from '@codegateway/shared';
+import { type Node, Project, type SourceFile, SyntaxKind } from 'ts-morph';
 import { BaseDetector } from './base.js';
 
 /**
@@ -47,10 +47,7 @@ export class CodeQualityDetector extends BaseDetector {
     return patterns;
   }
 
-  private detectMagicNumbers(
-    sourceFile: SourceFile,
-    filePath: string
-  ): DetectedPattern[] {
+  private detectMagicNumbers(sourceFile: SourceFile, filePath: string): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
 
     // Acceptable magic numbers
@@ -105,8 +102,8 @@ export class CodeQualityDetector extends BaseDetector {
               severity: 'info',
               suggestion: `const DESCRIPTIVE_NAME = ${value}; // Add explanation here`,
               confidence: 0.6,
-            }
-          )
+            },
+          ),
         );
       }
     });
@@ -115,9 +112,9 @@ export class CodeQualityDetector extends BaseDetector {
   }
 
   private detectTodoWithoutContext(
-    sourceFile: SourceFile,
+    _sourceFile: SourceFile,
     filePath: string,
-    content: string
+    content: string,
   ): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
     const lines = content.split('\n');
@@ -135,7 +132,7 @@ export class CodeQualityDetector extends BaseDetector {
           context &&
           context.length > 10 &&
           !/^\s*(fix|do|implement|add|remove|update|change|handle|check)\s*(this|it|later)?\s*$/i.test(
-            context
+            context,
           );
 
         if (!hasContext) {
@@ -153,8 +150,8 @@ export class CodeQualityDetector extends BaseDetector {
                 severity: 'info',
                 suggestion: `${todoType}: [What needs to be done] - [Why] - [Any relevant context or links]`,
                 confidence: 0.7,
-              }
-            )
+              },
+            ),
           );
         }
       }
@@ -163,10 +160,7 @@ export class CodeQualityDetector extends BaseDetector {
     return patterns;
   }
 
-  private detectCommentedOutCode(
-    filePath: string,
-    content: string
-  ): DetectedPattern[] {
+  private detectCommentedOutCode(filePath: string, content: string): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
     const lines = content.split('\n');
 
@@ -177,7 +171,7 @@ export class CodeQualityDetector extends BaseDetector {
     // Patterns that indicate code (not regular comments)
     const codePatterns = [
       /^\s*\/\/\s*(const|let|var|function|class|if|for|while|return|import|export)\s/,
-      /^\s*\/\/\s*[a-zA-Z_$][a-zA-Z0-9_$]*\s*[=\(\[{]/,
+      /^\s*\/\/\s*[a-zA-Z_$][a-zA-Z0-9_$]*\s*[=([{]/,
       /^\s*\/\/\s*[)}\]];?$/,
       /^\s*\/\/\s*\.[a-zA-Z]+\(/,
       /^\s*\/\/\s*(await|async)\s/,
@@ -194,14 +188,13 @@ export class CodeQualityDetector extends BaseDetector {
             `${consecutiveCommentedCode} lines of commented-out code`,
             'Large blocks of commented-out code clutter the codebase and create confusion. ' +
               "If the code is no longer needed, delete it - it's preserved in version control.",
-            commentedLines.slice(0, 3).join('\n') +
-              (commentedLines.length > 3 ? '\n// ...' : ''),
+            commentedLines.slice(0, 3).join('\n') + (commentedLines.length > 3 ? '\n// ...' : ''),
             {
               severity: 'info',
               suggestion: 'Delete commented-out code - use version control to recover it if needed',
               confidence: 0.65,
-            }
-          )
+            },
+          ),
         );
       }
       consecutiveCommentedCode = 0;
@@ -227,10 +220,7 @@ export class CodeQualityDetector extends BaseDetector {
     return patterns;
   }
 
-  private detectComplexFunctions(
-    sourceFile: SourceFile,
-    filePath: string
-  ): DetectedPattern[] {
+  private detectComplexFunctions(sourceFile: SourceFile, filePath: string): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
     const complexityThreshold = 10;
 
@@ -260,8 +250,8 @@ export class CodeQualityDetector extends BaseDetector {
               severity: complexity > 20 ? 'critical' : 'warning',
               suggestion: 'Extract logical branches into separate functions with descriptive names',
               confidence: 0.85,
-            }
-          )
+            },
+          ),
         );
       }
     });
@@ -271,7 +261,7 @@ export class CodeQualityDetector extends BaseDetector {
 
   private detectPlaceholderImplementations(
     sourceFile: SourceFile,
-    filePath: string
+    filePath: string,
   ): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
 
@@ -303,8 +293,8 @@ export class CodeQualityDetector extends BaseDetector {
               severity: 'critical',
               suggestion: 'Implement the function or remove it',
               confidence: 0.95,
-            }
-          )
+            },
+          ),
         );
         return;
       }
@@ -325,8 +315,8 @@ export class CodeQualityDetector extends BaseDetector {
               severity: 'warning',
               suggestion: 'Complete the TODO or add a detailed explanation of what remains',
               confidence: 0.75,
-            }
-          )
+            },
+          ),
         );
       }
 
@@ -366,8 +356,8 @@ export class CodeQualityDetector extends BaseDetector {
                   severity: 'warning',
                   suggestion: 'Add implementation or remove the function',
                   confidence: 0.8,
-                }
-              )
+                },
+              ),
             );
           }
         }
@@ -394,13 +384,14 @@ export class CodeQualityDetector extends BaseDetector {
         case SyntaxKind.CatchClause:
           complexity++;
           break;
-        case SyntaxKind.BinaryExpression:
+        case SyntaxKind.BinaryExpression: {
           const binary = n.asKind(SyntaxKind.BinaryExpression);
           const op = binary?.getOperatorToken().getKind();
           if (op === SyntaxKind.AmpersandAmpersandToken || op === SyntaxKind.BarBarToken) {
             complexity++;
           }
           break;
+        }
       }
     };
 
@@ -425,6 +416,6 @@ export class CodeQualityDetector extends BaseDetector {
 
   private truncateCode(code: string, maxLength: number): string {
     if (code.length <= maxLength) return code;
-    return code.slice(0, maxLength - 3) + '...';
+    return `${code.slice(0, maxLength - 3)}...`;
   }
 }

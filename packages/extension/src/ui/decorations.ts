@@ -1,5 +1,5 @@
-import * as vscode from 'vscode';
 import type { DetectedPattern, Severity } from '@codegateway/shared';
+import * as vscode from 'vscode';
 
 /**
  * Manages inline decorations for detected patterns
@@ -22,7 +22,7 @@ export class DecorationManager {
         overviewRulerLane: vscode.OverviewRulerLane.Right,
         gutterIconPath: this.getIconPath('error'),
         gutterIconSize: 'contain',
-      })
+      }),
     );
 
     // Warning severity - yellow underline
@@ -34,7 +34,7 @@ export class DecorationManager {
         overviewRulerLane: vscode.OverviewRulerLane.Right,
         gutterIconPath: this.getIconPath('warning'),
         gutterIconSize: 'contain',
-      })
+      }),
     );
 
     // Info severity - blue underline
@@ -44,7 +44,7 @@ export class DecorationManager {
         textDecoration: 'underline dotted #2196f3',
         overviewRulerColor: '#2196f3',
         overviewRulerLane: vscode.OverviewRulerLane.Right,
-      })
+      }),
     );
   }
 
@@ -66,8 +66,8 @@ export class DecorationManager {
         new vscode.Position(pattern.startLine - 1, pattern.startColumn ?? 0),
         new vscode.Position(
           pattern.endLine - 1,
-          pattern.endColumn ?? editor.document.lineAt(pattern.endLine - 1).text.length
-        )
+          pattern.endColumn ?? editor.document.lineAt(pattern.endLine - 1).text.length,
+        ),
       );
       bySeverity[pattern.severity].push(range);
     });
@@ -81,7 +81,11 @@ export class DecorationManager {
     }
 
     // Store active decorations for cleanup
-    this.activeDecorations.set(fileUri, [...bySeverity.critical, ...bySeverity.warning, ...bySeverity.info]);
+    this.activeDecorations.set(fileUri, [
+      ...bySeverity.critical,
+      ...bySeverity.warning,
+      ...bySeverity.info,
+    ]);
   }
 
   /**
@@ -107,7 +111,7 @@ export class DecorationManager {
     this.activeDecorations.clear();
   }
 
-  private getIconPath(type: 'error' | 'warning'): string {
+  private getIconPath(_type: 'error' | 'warning'): string {
     // Use VS Code's built-in icons via ThemeIcon (not actual file paths)
     // For gutter icons, we'd need to bundle actual icon files
     // For now, we'll skip gutter icons and rely on underlines

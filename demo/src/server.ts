@@ -1,4 +1,4 @@
-import { Analyzer } from "@codegateway/core";
+import { Analyzer } from '@codegateway/core';
 
 const analyzer = new Analyzer();
 
@@ -171,40 +171,40 @@ declare function fetchUsers(): any;`,
 };
 
 // Load HTML template at startup
-const htmlTemplate = await Bun.file(import.meta.dir + "/index.html").text();
+const htmlTemplate = await Bun.file(`${import.meta.dir}/index.html`).text();
 
 const server = Bun.serve({
   port: Number(process.env.PORT) || 8080,
   async fetch(req) {
     const url = new URL(req.url);
 
-    if (req.method === "GET" && url.pathname === "/") {
+    if (req.method === 'GET' && url.pathname === '/') {
       // Inject examples as JSON
       const htmlWithExamples = htmlTemplate.replace(
-        "EXAMPLES_PLACEHOLDER",
-        JSON.stringify(examples)
+        'EXAMPLES_PLACEHOLDER',
+        JSON.stringify(examples),
       );
       return new Response(htmlWithExamples, {
-        headers: { "Content-Type": "text/html" },
+        headers: { 'Content-Type': 'text/html' },
       });
     }
 
-    if (req.method === "POST" && url.pathname === "/analyze") {
+    if (req.method === 'POST' && url.pathname === '/analyze') {
       try {
         const body = (await req.json()) as { code: string };
-        const result = await analyzer.analyzeFile(body.code, "input.ts", {
-          minSeverity: "info",
+        const result = await analyzer.analyzeFile(body.code, 'input.ts', {
+          minSeverity: 'info',
         });
         return Response.json(result);
       } catch (err) {
         return Response.json(
-          { error: err instanceof Error ? err.message : "Unknown error" },
-          { status: 500 }
+          { error: err instanceof Error ? err.message : 'Unknown error' },
+          { status: 500 },
         );
       }
     }
 
-    return new Response("Not Found", { status: 404 });
+    return new Response('Not Found', { status: 404 });
   },
 });
 

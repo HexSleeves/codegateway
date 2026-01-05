@@ -86,11 +86,7 @@ export interface DetectedPattern {
 // CHECKPOINTS
 // ============================================
 
-export type CheckpointType =
-  | 'pre_commit'
-  | 'pre_push'
-  | 'on_demand'
-  | 'scheduled';
+export type CheckpointType = 'pre_commit' | 'pre_push' | 'on_demand' | 'scheduled';
 
 export type CheckpointStatus = 'pending' | 'passed' | 'failed' | 'skipped';
 

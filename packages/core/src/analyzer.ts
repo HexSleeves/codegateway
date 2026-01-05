@@ -1,23 +1,23 @@
 import type {
   DetectedPattern,
-  PatternType,
-  SupportedLanguage,
   ExtensionConfig,
+  PatternType,
   Severity,
+  SupportedLanguage,
 } from '@codegateway/shared';
 import {
+  compareSeverity,
   DEFAULT_CONFIG,
   detectLanguage,
   matchesGlob,
-  compareSeverity,
   meetsSeverityThreshold,
 } from '@codegateway/shared';
 import {
-  Detector,
-  NamingPatternDetector,
-  ErrorHandlingDetector,
-  SecurityDetector,
   CodeQualityDetector,
+  type Detector,
+  ErrorHandlingDetector,
+  NamingPatternDetector,
+  SecurityDetector,
 } from './detectors/index.js';
 
 export interface AnalyzerOptions {
@@ -65,7 +65,7 @@ export class Analyzer {
   async analyzeFile(
     content: string,
     filePath: string,
-    options: AnalyzerOptions = {}
+    options: AnalyzerOptions = {},
   ): Promise<AnalysisResult> {
     const startTime = Date.now();
     const mergedConfig = { ...this.config, ...options.config };
@@ -88,7 +88,7 @@ export class Analyzer {
     const applicableDetectors = this.getApplicableDetectors(
       language,
       options.patternTypes,
-      mergedConfig
+      mergedConfig,
     );
 
     // Run all detectors in parallel
@@ -97,8 +97,8 @@ export class Analyzer {
         detector.analyze(content, filePath).catch((error) => {
           console.error(`Detector ${detector.id} failed:`, error);
           return [] as DetectedPattern[];
-        })
-      )
+        }),
+      ),
     );
 
     // Flatten and filter results
@@ -138,11 +138,9 @@ export class Analyzer {
    */
   async analyzeFiles(
     files: { path: string; content: string }[],
-    options: AnalyzerOptions = {}
+    options: AnalyzerOptions = {},
   ): Promise<AnalysisResult[]> {
-    return Promise.all(
-      files.map((file) => this.analyzeFile(file.content, file.path, options))
-    );
+    return Promise.all(files.map((file) => this.analyzeFile(file.content, file.path, options)));
   }
 
   /**
@@ -195,13 +193,13 @@ export class Analyzer {
 
     // Check exclude files
     const fileName = filePath.split('/').pop() ?? '';
-    if (config.excludeFiles.some((pattern) => {
-      // Simple wildcard matching
-      const regex = new RegExp(
-        '^' + pattern.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$'
-      );
-      return regex.test(fileName);
-    })) {
+    if (
+      config.excludeFiles.some((pattern) => {
+        // Simple wildcard matching
+        const regex = new RegExp(`^${pattern.replace(/\./g, '\\.').replace(/\*/g, '.*')}$`);
+        return regex.test(fileName);
+      })
+    ) {
       return true;
     }
 
@@ -211,7 +209,7 @@ export class Analyzer {
   private getApplicableDetectors(
     language: SupportedLanguage | null,
     patternTypes?: PatternType[],
-    config?: ExtensionConfig
+    config?: ExtensionConfig,
   ): Detector[] {
     return this.detectors.filter((detector) => {
       // Check if detector supports the language

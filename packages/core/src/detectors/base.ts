@@ -47,7 +47,7 @@ export abstract class BaseDetector implements Detector {
       suggestion?: string;
       confidence?: number;
       autoFixAvailable?: boolean;
-    } = {}
+    } = {},
   ): DetectedPattern {
     return {
       id: `${this.id}-${file}-${startLine}-${Date.now()}`,

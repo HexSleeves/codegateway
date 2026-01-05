@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'bun:test';
+import { describe, expect, it } from 'bun:test';
 import { Analyzer } from '../src/analyzer.js';
-import { NamingPatternDetector } from '../src/detectors/naming.js';
-import { ErrorHandlingDetector } from '../src/detectors/errorHandling.js';
-import { SecurityDetector } from '../src/detectors/security.js';
 import { CodeQualityDetector } from '../src/detectors/codeQuality.js';
+import { ErrorHandlingDetector } from '../src/detectors/errorHandling.js';
+import { NamingPatternDetector } from '../src/detectors/naming.js';
+import { SecurityDetector } from '../src/detectors/security.js';
 
 describe('NamingPatternDetector', () => {
   const detector = new NamingPatternDetector();
@@ -18,9 +18,9 @@ describe('NamingPatternDetector', () => {
     const patterns = await detector.analyze(code, 'test.ts');
 
     expect(patterns.length).toBeGreaterThan(0);
-    expect(patterns.some(p => p.type === 'generic_variable_name')).toBe(true);
-    expect(patterns.some(p => p.description.includes('data'))).toBe(true);
-    expect(patterns.some(p => p.description.includes('result'))).toBe(true);
+    expect(patterns.some((p) => p.type === 'generic_variable_name')).toBe(true);
+    expect(patterns.some((p) => p.description.includes('data'))).toBe(true);
+    expect(patterns.some((p) => p.description.includes('result'))).toBe(true);
   });
 
   it('should allow loop variables', async () => {
@@ -33,7 +33,7 @@ describe('NamingPatternDetector', () => {
     const patterns = await detector.analyze(code, 'test.ts');
 
     // 'i' should not be flagged in a for loop
-    expect(patterns.filter(p => p.description.includes('"i"')).length).toBe(0);
+    expect(patterns.filter((p) => p.description.includes('"i"')).length).toBe(0);
   });
 
   it('should allow catch clause error variables', async () => {
@@ -48,7 +48,7 @@ describe('NamingPatternDetector', () => {
     const patterns = await detector.analyze(code, 'test.ts');
 
     // 'e' should not be flagged in a catch clause
-    expect(patterns.filter(p => p.description.includes('"e"')).length).toBe(0);
+    expect(patterns.filter((p) => p.description.includes('"e"')).length).toBe(0);
   });
 });
 
@@ -65,8 +65,8 @@ describe('ErrorHandlingDetector', () => {
 
     const patterns = await detector.analyze(code, 'test.ts');
 
-    expect(patterns.some(p => p.type === 'empty_catch_block')).toBe(true);
-    expect(patterns.find(p => p.type === 'empty_catch_block')?.severity).toBe('critical');
+    expect(patterns.some((p) => p.type === 'empty_catch_block')).toBe(true);
+    expect(patterns.find((p) => p.type === 'empty_catch_block')?.severity).toBe('critical');
   });
 
   it('should detect swallowed errors', async () => {
@@ -80,7 +80,7 @@ describe('ErrorHandlingDetector', () => {
 
     const patterns = await detector.analyze(code, 'test.ts');
 
-    expect(patterns.some(p => p.type === 'swallowed_error')).toBe(true);
+    expect(patterns.some((p) => p.type === 'swallowed_error')).toBe(true);
   });
 
   it('should not flag when error is used', async () => {
@@ -94,7 +94,7 @@ describe('ErrorHandlingDetector', () => {
 
     const patterns = await detector.analyze(code, 'test.ts');
 
-    expect(patterns.filter(p => p.type === 'swallowed_error').length).toBe(0);
+    expect(patterns.filter((p) => p.type === 'swallowed_error').length).toBe(0);
   });
 
   it('should detect bare try block as syntax error', async () => {
@@ -108,8 +108,8 @@ describe('ErrorHandlingDetector', () => {
 
     const patterns = await detector.analyze(code, 'test.ts');
 
-    expect(patterns.some(p => p.description.includes('syntax error'))).toBe(true);
-    expect(patterns.find(p => p.description.includes('syntax error'))?.severity).toBe('critical');
+    expect(patterns.some((p) => p.description.includes('syntax error'))).toBe(true);
+    expect(patterns.find((p) => p.description.includes('syntax error'))?.severity).toBe('critical');
   });
 
   it('should detect try without catch', async () => {
@@ -126,8 +126,8 @@ describe('ErrorHandlingDetector', () => {
 
     const patterns = await detector.analyze(code, 'test.ts');
 
-    expect(patterns.some(p => p.type === 'try_without_catch')).toBe(true);
-    expect(patterns.find(p => p.type === 'try_without_catch')?.severity).toBe('info');
+    expect(patterns.some((p) => p.type === 'try_without_catch')).toBe(true);
+    expect(patterns.find((p) => p.type === 'try_without_catch')?.severity).toBe('info');
   });
 
   it('should detect missing error boundaries in async functions', async () => {
@@ -141,7 +141,7 @@ describe('ErrorHandlingDetector', () => {
 
     const patterns = await detector.analyze(code, 'test.ts');
 
-    expect(patterns.some(p => p.type === 'missing_error_boundary')).toBe(true);
+    expect(patterns.some((p) => p.type === 'missing_error_boundary')).toBe(true);
   });
 });
 
@@ -156,8 +156,8 @@ describe('SecurityDetector', () => {
 
     const patterns = await detector.analyze(code, 'app.ts');
 
-    expect(patterns.some(p => p.type === 'hardcoded_secret')).toBe(true);
-    expect(patterns.find(p => p.type === 'hardcoded_secret')?.severity).toBe('critical');
+    expect(patterns.some((p) => p.type === 'hardcoded_secret')).toBe(true);
+    expect(patterns.find((p) => p.type === 'hardcoded_secret')?.severity).toBe('critical');
   });
 
   it('should detect unsafe eval usage', async () => {
@@ -168,7 +168,7 @@ describe('SecurityDetector', () => {
 
     const patterns = await detector.analyze(code, 'test.ts');
 
-    expect(patterns.filter(p => p.type === 'unsafe_eval').length).toBeGreaterThanOrEqual(2);
+    expect(patterns.filter((p) => p.type === 'unsafe_eval').length).toBeGreaterThanOrEqual(2);
   });
 
   it('should skip test files for secret detection', async () => {
@@ -178,7 +178,7 @@ describe('SecurityDetector', () => {
 
     const patterns = await detector.analyze(code, 'app.test.ts');
 
-    expect(patterns.filter(p => p.type === 'hardcoded_secret').length).toBe(0);
+    expect(patterns.filter((p) => p.type === 'hardcoded_secret').length).toBe(0);
   });
 });
 
@@ -196,7 +196,7 @@ describe('CodeQualityDetector', () => {
 
     const patterns = await detector.analyze(code, 'test.ts');
 
-    expect(patterns.some(p => p.type === 'todo_without_context')).toBe(true);
+    expect(patterns.some((p) => p.type === 'todo_without_context')).toBe(true);
   });
 
   it('should not flag detailed TODOs', async () => {
@@ -207,7 +207,7 @@ describe('CodeQualityDetector', () => {
 
     const patterns = await detector.analyze(code, 'test.ts');
 
-    expect(patterns.filter(p => p.type === 'todo_without_context').length).toBe(0);
+    expect(patterns.filter((p) => p.type === 'todo_without_context').length).toBe(0);
   });
 
   it('should detect placeholder implementations', async () => {
@@ -219,7 +219,7 @@ describe('CodeQualityDetector', () => {
 
     const patterns = await detector.analyze(code, 'test.ts');
 
-    expect(patterns.some(p => p.type === 'placeholder_implementation')).toBe(true);
+    expect(patterns.some((p) => p.type === 'placeholder_implementation')).toBe(true);
   });
 
   it('should detect overly complex functions', async () => {
@@ -251,7 +251,7 @@ describe('CodeQualityDetector', () => {
 
     const patterns = await detector.analyze(code, 'test.ts');
 
-    expect(patterns.some(p => p.type === 'overly_complex_function')).toBe(true);
+    expect(patterns.some((p) => p.type === 'overly_complex_function')).toBe(true);
   });
 });
 

@@ -1,6 +1,6 @@
-import { Project, SyntaxKind, SourceFile } from 'ts-morph';
 import type { DetectedPattern, PatternType, SupportedLanguage } from '@codegateway/shared';
 import { SECRET_PATTERNS } from '@codegateway/shared';
+import { Project, type SourceFile, SyntaxKind } from 'ts-morph';
 import { BaseDetector } from './base.js';
 
 /**
@@ -66,7 +66,7 @@ export class SecurityDetector extends BaseDetector {
   private detectHardcodedSecrets(
     sourceFile: SourceFile,
     filePath: string,
-    content: string
+    content: string,
   ): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
     const lines = content.split('\n');
@@ -99,8 +99,8 @@ export class SecurityDetector extends BaseDetector {
                 suggestion:
                   'Move this secret to an environment variable or secrets manager (e.g., process.env.API_KEY)',
                 confidence: 0.9,
-              }
-            )
+              },
+            ),
           );
           break; // Only report once per line
         }
@@ -126,8 +126,8 @@ export class SecurityDetector extends BaseDetector {
               severity: 'critical',
               suggestion: 'Store tokens securely and retrieve them at runtime',
               confidence: 0.95,
-            }
-          )
+            },
+          ),
         );
       }
 
@@ -146,8 +146,8 @@ export class SecurityDetector extends BaseDetector {
               severity: 'critical',
               suggestion: 'Use AWS SDK credential providers or environment variables',
               confidence: 0.98,
-            }
-          )
+            },
+          ),
         );
       }
     });
@@ -155,10 +155,7 @@ export class SecurityDetector extends BaseDetector {
     return patterns;
   }
 
-  private detectSqlConcatenation(
-    sourceFile: SourceFile,
-    filePath: string
-  ): DetectedPattern[] {
+  private detectSqlConcatenation(sourceFile: SourceFile, filePath: string): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
 
     // Find template literals and string concatenations that look like SQL
@@ -185,8 +182,8 @@ export class SecurityDetector extends BaseDetector {
                 severity: 'critical',
                 suggestion: 'Use parameterized queries or an ORM with proper escaping',
                 confidence: 0.85,
-              }
-            )
+              },
+            ),
           );
         }
       }
@@ -217,8 +214,8 @@ export class SecurityDetector extends BaseDetector {
                 severity: 'critical',
                 suggestion: 'Use parameterized queries or an ORM',
                 confidence: 0.8,
-              }
-            )
+              },
+            ),
           );
         }
       }
@@ -227,10 +224,7 @@ export class SecurityDetector extends BaseDetector {
     return patterns;
   }
 
-  private detectUnsafeEval(
-    sourceFile: SourceFile,
-    filePath: string
-  ): DetectedPattern[] {
+  private detectUnsafeEval(sourceFile: SourceFile, filePath: string): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
 
     sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression).forEach((call) => {
@@ -251,10 +245,11 @@ export class SecurityDetector extends BaseDetector {
             call.getText(),
             {
               severity: 'critical',
-              suggestion: 'Use JSON.parse() for JSON data, or restructure code to avoid dynamic evaluation',
+              suggestion:
+                'Use JSON.parse() for JSON data, or restructure code to avoid dynamic evaluation',
               confidence: 0.95,
-            }
-          )
+            },
+          ),
         );
       }
 
@@ -273,8 +268,8 @@ export class SecurityDetector extends BaseDetector {
               severity: 'critical',
               suggestion: 'Use regular function declarations or arrow functions',
               confidence: 0.9,
-            }
-          )
+            },
+          ),
         );
       }
 
@@ -295,8 +290,8 @@ export class SecurityDetector extends BaseDetector {
                 severity: 'warning',
                 suggestion: 'Pass a function reference instead of a string',
                 confidence: 0.9,
-              }
-            )
+              },
+            ),
           );
         }
       }
@@ -319,8 +314,8 @@ export class SecurityDetector extends BaseDetector {
               severity: 'critical',
               suggestion: 'Use regular function declarations or arrow functions',
               confidence: 0.9,
-            }
-          )
+            },
+          ),
         );
       }
     });
@@ -328,10 +323,7 @@ export class SecurityDetector extends BaseDetector {
     return patterns;
   }
 
-  private detectInsecureRandom(
-    sourceFile: SourceFile,
-    filePath: string
-  ): DetectedPattern[] {
+  private detectInsecureRandom(sourceFile: SourceFile, filePath: string): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
 
     sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression).forEach((call) => {
@@ -360,10 +352,11 @@ export class SecurityDetector extends BaseDetector {
               this.truncateCode(context, 100),
               {
                 severity: 'warning',
-                suggestion: "Use crypto.randomUUID() or crypto.randomBytes() for security-sensitive operations",
+                suggestion:
+                  'Use crypto.randomUUID() or crypto.randomBytes() for security-sensitive operations',
                 confidence: 0.75,
-              }
-            )
+              },
+            ),
           );
         }
       }
@@ -380,7 +373,7 @@ export class SecurityDetector extends BaseDetector {
     // Find the value part and mask it
     const valueMatch = secret.match(/['"]([^'"]+)['"]/)?.[1];
     if (valueMatch && valueMatch.length > 4) {
-      const masked = valueMatch.slice(0, 4) + '***MASKED***';
+      const masked = `${valueMatch.slice(0, 4)}***MASKED***`;
       return line.replace(valueMatch, masked);
     }
     return line;
@@ -388,6 +381,6 @@ export class SecurityDetector extends BaseDetector {
 
   private truncateCode(code: string, maxLength: number): string {
     if (code.length <= maxLength) return code;
-    return code.slice(0, maxLength - 3) + '...';
+    return `${code.slice(0, maxLength - 3)}...`;
   }
 }

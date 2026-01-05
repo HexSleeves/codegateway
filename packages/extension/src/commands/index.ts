@@ -1,12 +1,14 @@
 import * as vscode from 'vscode';
-import { FileAnalyzer } from '../analysis/fileAnalyzer';
+import type { FileAnalyzer } from '../analysis/fileAnalyzer';
+
+export { registerGitCommands } from './git-commands.js';
 
 /**
  * Register all extension commands
  */
 export function registerCommands(
   context: vscode.ExtensionContext,
-  fileAnalyzer: FileAnalyzer
+  fileAnalyzer: FileAnalyzer,
 ): void {
   // Analyze current file
   context.subscriptions.push(
@@ -24,20 +26,17 @@ export function registerCommands(
           vscode.window.showInformationMessage('CodeGateway: No patterns detected!');
         } else {
           vscode.window.showInformationMessage(
-            `CodeGateway: Found ${count} pattern${count !== 1 ? 's' : ''}`
+            `CodeGateway: Found ${count} pattern${count !== 1 ? 's' : ''}`,
           );
         }
       }
-    })
+    }),
   );
 
   // Analyze workspace
   context.subscriptions.push(
     vscode.commands.registerCommand('codegateway.analyzeWorkspace', async () => {
-      const files = await vscode.workspace.findFiles(
-        '**/*.{ts,tsx,js,jsx}',
-        '**/node_modules/**'
-      );
+      const files = await vscode.workspace.findFiles('**/*.{ts,tsx,js,jsx}', '**/node_modules/**');
 
       if (files.length === 0) {
         vscode.window.showInformationMessage('No TypeScript/JavaScript files found');
@@ -73,11 +72,11 @@ export function registerCommands(
           }
 
           vscode.window.showInformationMessage(
-            `CodeGateway: Analyzed ${analyzed} files, found ${totalPatterns} patterns`
+            `CodeGateway: Analyzed ${analyzed} files, found ${totalPatterns} patterns`,
           );
-        }
+        },
       );
-    })
+    }),
   );
 
   // Clear all diagnostics
@@ -85,15 +84,15 @@ export function registerCommands(
     vscode.commands.registerCommand('codegateway.clearDiagnostics', () => {
       fileAnalyzer.clearAll();
       vscode.window.showInformationMessage('CodeGateway: Diagnostics cleared');
-    })
+    }),
   );
 
   // Show dashboard (placeholder for now)
   context.subscriptions.push(
     vscode.commands.registerCommand('codegateway.showDashboard', () => {
       vscode.window.showInformationMessage(
-        'CodeGateway Dashboard coming soon! Check the Problems panel for detected patterns.'
+        'CodeGateway Dashboard coming soon! Check the Problems panel for detected patterns.',
       );
-    })
+    }),
   );
 }

@@ -1,9 +1,12 @@
-import type { PatternType, Severity, ExtensionConfig } from '../types/index.js';
+import type { ExtensionConfig, PatternType, Severity } from '../types/index.js';
 
 /**
  * Pattern metadata with descriptions and default severities
  */
-export const PATTERN_METADATA: Record<PatternType, { description: string; defaultSeverity: Severity }> = {
+export const PATTERN_METADATA: Record<
+  PatternType,
+  { description: string; defaultSeverity: Severity }
+> = {
   // Naming patterns
   generic_variable_name: {
     description: 'Variable has a generic, non-descriptive name',
