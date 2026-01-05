@@ -1,6 +1,7 @@
 # Git Integration
 
-CodeGateway integrates with Git to analyze code before commits and pushes, helping you catch issues before they enter your codebase.
+CodeGateway integrates with Git to analyze code before commits and pushes,
+helping you catch issues before they enter your codebase.
 
 ## Overview
 
@@ -12,7 +13,7 @@ CodeGateway provides:
 
 ## Installing Git Hooks
 
-### Via VS Code Command
+### Via VS Code (Staged Files) Uninstall Command
 
 1. Open Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
 2. Run `CodeGateway: Install Git Hook`
@@ -41,7 +42,7 @@ By default, the pre-commit hook:
 
 ### Example Output
 
-```
+```bash
 CodeGateway: Analyzing staged files...
 
 ═══════════════════════════════════════════════════════════
@@ -66,13 +67,13 @@ Configure hook behavior in VS Code settings:
 {
   // Block commit on critical issues (default: true)
   "codegateway.blockOnCritical": true,
-  
+
   // Block commit on warnings (default: false)
   "codegateway.blockOnWarning": false,
-  
+
   // Show checkpoint confirmation (default: true)
   "codegateway.showCheckpoint": true,
-  
+
   // Minimum severity to report (default: "warning")
   "codegateway.minSeverity": "warning"
 }
@@ -113,7 +114,7 @@ mv .git/hooks/pre-commit.disabled .git/hooks/pre-commit
 
 Without committing, you can analyze what's staged:
 
-### Via VS Code
+### Via VS Code (Staged Files) Uninstall
 
 1. Stage your changes (`git add ...`)
 2. Open Command Palette
@@ -138,13 +139,14 @@ The pre-push hook provides a final check before code reaches the remote:
 
 ### Installation
 
-When installing the pre-commit hook, you'll be asked if you also want the pre-push hook.
+When installing the pre-commit hook, you'll be asked if you also want the
+pre-push hook.
 
 Or install separately by editing `.git/hooks/pre-push`.
 
 ## Uninstalling Hooks
 
-### Via VS Code
+### Via VS Code (Staged Files) Uninstall
 
 1. Open Command Palette
 2. Run `CodeGateway: Uninstall Git Hook`
@@ -191,14 +193,16 @@ npm install -D husky
 npx husky install
 
 # Add CodeGateway to pre-commit
-npx husky add .husky/pre-commit "npx @codegateway/cli analyze --staged --fail-on critical"
+npx husky add .husky/pre-commit
+"npx @codegateway/cli analyze --staged --fail-on critical"
 ```
 
 This ensures everyone gets the hook automatically via `npm install`.
 
 ### Option 3: lint-staged
 
-Combine with [lint-staged](https://github.com/okonet/lint-staged) for efficient analysis:
+Combine with [lint-staged](https://github.com/okonet/lint-staged) for efficient
+analysis:
 
 ```json
 // package.json
@@ -234,6 +238,7 @@ Then re-install the hook.
 ### "CodeGateway CLI not found"
 
 The hook tries multiple methods:
+
 1. Global `codegateway` command
 2. `bunx @codegateway/cli`
 3. `npx @codegateway/cli`

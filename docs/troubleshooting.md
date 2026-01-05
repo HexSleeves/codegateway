@@ -11,7 +11,8 @@ Common issues and solutions for CodeGateway.
 **Solutions:**
 
 1. **Check VS Code version:**
-   ```
+
+   ```text
    Required: VS Code 1.85.0+
    Check: Help → About
    ```
@@ -21,6 +22,7 @@ Common issues and solutions for CodeGateway.
    - Run: `code --install-extension codegateway-1.0.0.vsix`
 
 3. **Clear extension cache:**
+
    ```bash
    # Close VS Code first
    rm -rf ~/.vscode/extensions/codegateway.*
@@ -33,11 +35,13 @@ Common issues and solutions for CodeGateway.
 **Solutions:**
 
 1. **Use sudo (Linux/Mac):**
+
    ```bash
    sudo npm install -g @codegateway/cli
    ```
 
 2. **Fix npm permissions:**
+
    ```bash
    mkdir ~/.npm-global
    npm config set prefix '~/.npm-global'
@@ -46,6 +50,7 @@ Common issues and solutions for CodeGateway.
    ```
 
 3. **Use npx instead:**
+
    ```bash
    npx @codegateway/cli analyze .
    ```
@@ -65,6 +70,7 @@ Common issues and solutions for CodeGateway.
    - Check status bar for language mode
 
 2. **Check severity filter:**
+
    ```json
    {
      "codegateway.minSeverity": "info"  // Show all
@@ -72,6 +78,7 @@ Common issues and solutions for CodeGateway.
    ```
 
 3. **Check enabled patterns:**
+
    ```json
    {
      "codegateway.enabledPatterns": [
@@ -81,6 +88,7 @@ Common issues and solutions for CodeGateway.
    ```
 
 4. **Check excluded paths:**
+
    ```json
    {
      "codegateway.excludePaths": [
@@ -118,6 +126,7 @@ Common issues and solutions for CodeGateway.
 **Solutions:**
 
 1. **Enable inline hints:**
+
    ```json
    {
      "codegateway.showInlineHints": true
@@ -125,6 +134,7 @@ Common issues and solutions for CodeGateway.
    ```
 
 2. **Check editor decorations:**
+
    ```json
    {
      "editor.renderValidationDecorations": "on"
@@ -142,6 +152,7 @@ Common issues and solutions for CodeGateway.
 **Solutions:**
 
 1. **Increase debounce:**
+
    ```json
    {
      "codegateway.debounceMs": 1000
@@ -149,6 +160,7 @@ Common issues and solutions for CodeGateway.
    ```
 
 2. **Exclude large directories:**
+
    ```json
    {
      "codegateway.excludePaths": [
@@ -162,6 +174,7 @@ Common issues and solutions for CodeGateway.
    ```
 
 3. **Disable analyze on open:**
+
    ```json
    {
      "codegateway.analyzeOnOpen": false
@@ -183,6 +196,7 @@ Common issues and solutions for CodeGateway.
    - See if CPU drops
 
 2. **Increase debounce significantly:**
+
    ```json
    {
      "codegateway.debounceMs": 2000
@@ -203,22 +217,26 @@ Common issues and solutions for CodeGateway.
 **Solutions:**
 
 1. **Check hook exists:**
+
    ```bash
    ls -la .git/hooks/pre-commit
    ```
 
 2. **Check hook is executable:**
+
    ```bash
    chmod +x .git/hooks/pre-commit
    ```
 
 3. **Check hook content:**
+
    ```bash
    cat .git/hooks/pre-commit
    # Should contain "CodeGateway hook"
    ```
 
 4. **Test hook manually:**
+
    ```bash
    .git/hooks/pre-commit
    ```
@@ -230,20 +248,24 @@ Common issues and solutions for CodeGateway.
 **Solutions:**
 
 1. **Bypass for one commit:**
+
    ```bash
    git commit --no-verify -m "message"
    ```
 
 2. **Check blocking settings:**
+
    ```json
    {
      "codegateway.blockOnCritical": false,
      "codegateway.blockOnWarning": false
    }
    ```
+
    Then reinstall hook.
 
 3. **Remove hook:**
+
    ```bash
    rm .git/hooks/pre-commit
    ```
@@ -255,6 +277,7 @@ Common issues and solutions for CodeGateway.
 **Solutions:**
 
 1. **Install CLI globally:**
+
    ```bash
    npm install -g @codegateway/cli
    ```
@@ -263,6 +286,7 @@ Common issues and solutions for CodeGateway.
    The hook tries `codegateway`, `bunx`, then `npx`.
 
 3. **Edit hook to use npx:**
+
    ```bash
    # In .git/hooks/pre-commit
    CODEGATEWAY="npx @codegateway/cli"
@@ -279,6 +303,7 @@ Common issues and solutions for CodeGateway.
 **Solutions:**
 
 1. **Disable specific pattern:**
+
    ```json
    {
      "codegateway.enabledPatterns": [
@@ -288,6 +313,7 @@ Common issues and solutions for CodeGateway.
    ```
 
 2. **Exclude specific file:**
+
    ```json
    {
      "codegateway.excludePaths": [
@@ -307,6 +333,7 @@ Common issues and solutions for CodeGateway.
 **Solutions:**
 
 1. **Increase severity threshold:**
+
    ```json
    {
      "codegateway.minSeverity": "warning"
@@ -314,6 +341,7 @@ Common issues and solutions for CodeGateway.
    ```
 
 2. **Focus on critical only:**
+
    ```json
    {
      "codegateway.minSeverity": "critical"
@@ -392,7 +420,8 @@ winver    # Windows
 
 ### Report an Issue
 
-[Open an issue on GitHub](https://github.com/codegateway/codegateway/issues/new) with:
+[Open an issue on GitHub](https://github.com/codegateway/codegateway/issues/new)
+with:
 
 - Description of the problem
 - Steps to reproduce

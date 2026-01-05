@@ -17,11 +17,13 @@ last_updated: 2026-01-05
 **One-Line Pitch:** "Spell-check for AI-assisted coding" - automatically detects AI-generated patterns, prompts comprehension verification, and tracks the relationship between AI code and production incidents.
 
 **Target Users:**
+
 - Individual developers who use GitHub Copilot, Cursor, or other AI coding assistants
 - Engineering managers concerned about code quality and maintainability
 - Security-conscious teams (fintech, healthcare, enterprise)
 
 **Core Problem:**
+
 - 66% of developers say AI solutions are "almost right, but not quite"
 - AI-co-authored PRs contain 1.7x more issues (logic errors, readability problems, security vulnerabilities)
 - METR study: experienced developers 19% slower with AI tools, yet believed they were 20% faster
@@ -29,6 +31,7 @@ last_updated: 2026-01-05
 - No existing tool verifies *comprehension*, only *correctness*
 
 **Business Model:** Freemium
+
 - Free: VS Code extension, local analysis, personal metrics
 - Team ($15/seat/month): Cloud sync, team dashboard, trend analytics
 - Enterprise ($30/seat/month): SSO, audit logs, custom policies, incident integration
@@ -42,7 +45,7 @@ last_updated: 2026-01-05
 ### Research Findings
 
 | Source | Finding |
-|--------|--------|
+| ------ | ------- |
 | GitClear 2024 Report | AI-assisted code has 1.7x more issues than human-written code |
 | METR Study 2024 | Experienced developers 19% slower with AI tools (yet believed 20% faster) |
 | Stack Overflow Survey 2024 | 66% cite "almost right but not quite" as top AI frustration |
@@ -58,7 +61,7 @@ last_updated: 2026-01-05
 ### Existing Solutions Gaps
 
 | Tool | Gap |
-|------|-----|
+| ---- | --- |
 | SonarQube / CodeClimate | Not AI-aware, can't distinguish AI from human code |
 | GitHub Copilot | Generates code but doesn't verify understanding |
 | Snyk / Semgrep | Security-focused only, no comprehension layer |
@@ -78,7 +81,7 @@ last_updated: 2026-01-05
 ### Intervention Points
 
 | Point | Trigger | Action |
-|-------|---------|--------|
+| ----- | ------- | ------ |
 | Pre-commit | Developer stages files with AI-detected patterns | Show comprehension checkpoint |
 | Pre-push | Developer pushes commits with skipped checkpoints | Summary warning |
 | CI pipeline | PR opened with flagged code | Add PR comment with analysis |
@@ -90,10 +93,12 @@ last_updated: 2026-01-05
 ### Pattern Categories
 
 #### Naming Patterns
+
 - `generic_variable_name` - Variables like data, result, temp, item
 - `inconsistent_naming` - Mixed conventions in same scope
 
 #### Error Handling
+
 - `empty_catch_block` - catch (e) {}
 - `swallowed_error` - catch without logging/rethrowing
 - `missing_error_boundary` - Async without try-catch
@@ -101,6 +106,7 @@ last_updated: 2026-01-05
 - `try_without_catch` - try...finally without catch (or bare try)
 
 #### Security
+
 - `hardcoded_secret` - API keys, passwords in code
 - `sql_concatenation` - String building for SQL
 - `unsafe_eval` - eval(), new Function()
@@ -108,6 +114,7 @@ last_updated: 2026-01-05
 - `missing_input_validation` - User input not validated
 
 #### Code Quality
+
 - `copy_paste_pattern` - Duplicated code blocks
 - `magic_number` - Unexplained numeric literals
 - `todo_without_context` - TODO without explanation
@@ -115,6 +122,7 @@ last_updated: 2026-01-05
 - `overly_complex_function` - High cyclomatic complexity
 
 #### AI-Specific Patterns
+
 - `placeholder_implementation` - NotImplementedError, pass, TODO
 - `incomplete_edge_case` - Missing null checks, boundary conditions
 - `mock_data_in_production` - Hardcoded test data
@@ -126,7 +134,7 @@ last_updated: 2026-01-05
 
 ## Architecture
 
-```
+```bash
 ┌─────────────────────────────────────────────────────────────────┐
 │                      VS CODE EXTENSION                           │
 ├─────────────────────────────────────────────────────────────────┤
@@ -172,6 +180,7 @@ last_updated: 2026-01-05
 ## Technology Stack
 
 ### Extension
+
 - **Platform:** VS Code Extension API
 - **Language:** TypeScript 5.x (strict mode)
 - **Bundler:** Bun
@@ -179,6 +188,7 @@ last_updated: 2026-01-05
 - **Storage:** sql.js (SQLite in WASM)
 
 ### Cloud Backend (Optional)
+
 - **Runtime:** Bun
 - **Framework:** Fastify
 - **ORM:** Drizzle
@@ -186,12 +196,14 @@ last_updated: 2026-01-05
 - **Database:** PostgreSQL (Neon), Redis (Upstash)
 
 ### Web Dashboard
+
 - **Framework:** Next.js 14+ (App Router)
 - **Styling:** Tailwind CSS
 - **Components:** shadcn/ui
 - **Charts:** Recharts
 
 ### Build System
+
 - **Package Manager:** Bun
 - **Monorepo:** Bun workspaces + Turborepo
 - **Testing:** Bun test runner
@@ -200,7 +212,7 @@ last_updated: 2026-01-05
 
 ## Project Structure
 
-```
+```bash
 codegateway/
 ├── packages/
 │   ├── shared/           # Shared types and utilities
@@ -220,6 +232,7 @@ codegateway/
 ## Implementation Phases
 
 ### Phase 1: Extension Foundation (Weeks 1-2)
+
 - VS Code extension scaffold
 - Basic TypeScript file parsing with ts-morph
 - Simple pattern detector: generic variable names
@@ -228,6 +241,7 @@ codegateway/
 - Basic test infrastructure
 
 ### Phase 2: Core Pattern Detectors (Weeks 3-4)
+
 - Error handling detectors
 - Security detectors
 - Code quality detectors
@@ -235,6 +249,7 @@ codegateway/
 - Severity configuration
 
 ### Phase 3: Git Integration (Weeks 5-6)
+
 - Git diff analysis
 - Pre-commit hook installation
 - Staging area analysis
@@ -242,30 +257,35 @@ codegateway/
 - Skip functionality with optional reason
 
 ### Phase 4: Question Generation (Weeks 7-8)
+
 - Rule-based question templates
 - Code-context questions
 - Multiple choice and free-text types
 - LLM-based generation (optional)
 
 ### Phase 5: Metrics & Dashboard (Weeks 9-10)
+
 - SQLite storage for metrics
 - Local dashboard webview
 - Charts and trends
 - Export to JSON
 
 ### Phase 6: Multi-Language Support (Weeks 11-12)
+
 - Tree-sitter integration
 - Python pattern detectors
 - Rust pattern detectors
 - Go pattern detectors
 
 ### Phase 7: Cloud Sync & Team Dashboard (Weeks 13-15)
+
 - Cloud API
 - Authentication with Clerk
 - Team management
 - Web dashboard
 
 ### Phase 8: CI Integration & Polish (Weeks 16-18)
+
 - CLI for CI pipelines
 - GitHub Action
 - SARIF output format
@@ -277,6 +297,7 @@ codegateway/
 ## Constraints
 
 ### Technical
+
 - Local-first: all analysis runs on developer's machine
 - No code sent to cloud (only aggregated metrics, opt-in)
 - Works offline (core functionality)
@@ -284,11 +305,13 @@ codegateway/
 - <50MB extension size
 
 ### Privacy
+
 - Source code analyzed in-memory, never persisted to cloud
 - Cloud sync only sends pattern counts, no code snippets
 - No personally identifiable information transmitted
 
 ### UX
+
 - Non-blocking by default
 - Match VS Code's native look and feel
 - Keyboard accessible
@@ -299,6 +322,7 @@ codegateway/
 ## Success Metrics
 
 ### MVP Complete When
+
 - Extension installs and activates without errors
 - Detects 15+ pattern types in TypeScript/JavaScript
 - Checkpoint flow works for pre-commit
@@ -308,7 +332,7 @@ codegateway/
 ### Adoption Targets
 
 | Timeframe | Installs | WAU | Paying Teams |
-|-----------|----------|-----|-------------|
+| --------- | -------- | --- | ------------ |
 | Month 1 | 500 | 100 | - |
 | Month 3 | 5,000 | 1,000 | 10 |
 | Month 6 | 25,000 | 5,000 | 50 |
@@ -318,7 +342,7 @@ codegateway/
 ## Severity Levels
 
 | Level | Icon | Description | Examples |
-|-------|------|-------------|----------|
+| ----- | ---- | ----------- | -------- |
 | Critical | 🔴 | Should block commit | Empty catch, hardcoded secrets, unsafe eval |
 | Warning | 🟡 | Needs attention | Generic names, missing error boundaries |
 | Info | 🔵 | Suggestions | Magic numbers, TODOs, minor style |
@@ -328,7 +352,7 @@ codegateway/
 ## Commands
 
 | Command | Description |
-|---------|-------------|
+| ------- | ----------- |
 | `codegateway.analyzeFile` | Analyze current file |
 | `codegateway.analyzeWorkspace` | Analyze all files |
 | `codegateway.clearDiagnostics` | Clear all diagnostics |

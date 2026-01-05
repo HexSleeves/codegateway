@@ -77,7 +77,8 @@ cursor --install-extension codegateway-1.0.0.vsix
 
 ## CLI Installation
 
-The CodeGateway CLI can be used independently for CI/CD pipelines or command-line analysis.
+The CodeGateway CLI can be used independently for CI/CD pipelines or
+command-line analysis.
 
 ### Via npm/bun (Global)
 
@@ -115,14 +116,14 @@ bun link
 
 ## Verifying Installation
 
-### VS Code Extension
+### VS Code Extension Requirements
 
 1. Open a TypeScript or JavaScript file
 2. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
 3. Type "CodeGateway" - you should see available commands
 4. Check the status bar for the CodeGateway indicator
 
-### CLI
+### CLI Requirements
 
 ```bash
 codegateway --version
@@ -131,13 +132,13 @@ codegateway --help
 
 ## System Requirements
 
-### VS Code Extension
+### VS Code Extension Requirements
 
 - VS Code 1.85.0 or later
 - Cursor IDE (any recent version)
 - No additional runtime requirements (bundled)
 
-### CLI
+### CLI Requirements
 
 - Node.js 20.0.0 or later, OR
 - Bun 1.0.0 or later
@@ -145,17 +146,19 @@ codegateway --help
 ### Supported Languages
 
 Currently supported:
+
 - TypeScript (`.ts`, `.tsx`)
 - JavaScript (`.js`, `.jsx`)
 
 Coming soon:
+
 - Python
 - Rust
 - Go
 
 ## Updating
 
-### VS Code Extension
+### VS Code Extension Requirements
 
 VS Code automatically updates extensions. To manually update:
 
@@ -163,7 +166,7 @@ VS Code automatically updates extensions. To manually update:
 2. Find CodeGateway
 3. Click **Update** (if available)
 
-### CLI
+### CLI Requirements
 
 ```bash
 # npm
@@ -175,7 +178,7 @@ bun update -g @codegateway/cli
 
 ## Uninstalling
 
-### VS Code Extension
+### VS Code Extension Requirements
 
 1. Go to Extensions
 2. Find CodeGateway
@@ -187,7 +190,7 @@ Or via command line:
 code --uninstall-extension codegateway.codegateway
 ```
 
-### CLI
+### CLI Requirements
 
 ```bash
 npm uninstall -g @codegateway/cli

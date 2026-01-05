@@ -1,11 +1,13 @@
 # Pattern Reference
 
-CodeGateway detects patterns commonly found in AI-generated code that may indicate areas needing human review. This reference explains each pattern, why it matters, and how to address it.
+CodeGateway detects patterns commonly found in AI-generated code that may
+indicate areas needing human review. This reference explains each pattern, why
+it matters, and how to address it.
 
 ## Severity Levels
 
 | Level | Icon | Description |
-|-------|------|-------------|
+| ----- | ---- | ----------- |
 | **Critical** | 🔴 | Should block commit - security risks or definite bugs |
 | **Warning** | 🟡 | Needs attention - potential issues or code smells |
 | **Info** | 🔵 | Suggestions - minor improvements |
@@ -18,11 +20,14 @@ CodeGateway detects patterns commonly found in AI-generated code that may indica
 
 **Severity:** Warning
 
-**Description:** Variables with generic names like `data`, `result`, `temp`, `item`, `value`, `obj`, `arr`.
+**Description:** Variables with generic names like `data`, `result`, `temp`,
+`item`, `value`, `obj`, `arr`.
 
-**Why it matters:** Generic names make code harder to understand. AI tools often use placeholder names that don't convey meaning.
+**Why it matters:** Generic names make code harder to understand. AI tools
+often use placeholder names that don't convey meaning.
 
 **Example:**
+
 ```typescript
 // ❌ Bad
 const data = await fetchUsers();
@@ -41,11 +46,13 @@ const activeUsers = users.filter(user => user.active);
 
 **Severity:** Info
 
-**Description:** Mixed naming conventions in the same file (e.g., `camelCase` and `snake_case`).
+**Description:** Mixed naming conventions in the same file (e.g., `camelCase`
+and `snake_case`).
 
 **Why it matters:** Inconsistent naming suggests code was assembled from different sources without review.
 
 **Example:**
+
 ```typescript
 // ❌ Bad - mixed conventions
 const user_name = 'John';
@@ -68,9 +75,11 @@ const userEmail = 'john@example.com';
 
 **Description:** A `catch` block that contains no code or only comments.
 
-**Why it matters:** Silently swallowing errors hides bugs and makes debugging nearly impossible. This is one of the most common AI-generated anti-patterns.
+**Why it matters:** Silently swallowing errors hides bugs and makes debugging
+nearly impossible. This is one of the most common AI-generated anti-patterns.
 
 **Example:**
+
 ```typescript
 // ❌ Bad
 try {
@@ -104,9 +113,11 @@ try {
 
 **Description:** An error is caught but never used (logged, thrown, or returned).
 
-**Why it matters:** The error information is lost, making it impossible to diagnose issues.
+**Why it matters:** The error information is lost, making it impossible to
+diagnose issues.
 
 **Example:**
+
 ```typescript
 // ❌ Bad - error caught but not used
 try {
@@ -135,6 +146,7 @@ try {
 **Why it matters:** Unhandled promise rejections can crash your application or leave it in an inconsistent state.
 
 **Example:**
+
 ```typescript
 // ❌ Bad - no error handling
 async function fetchUserData(userId: string) {
@@ -163,11 +175,14 @@ async function fetchUserData(userId: string) {
 
 **Severity:** Info
 
-**Description:** Error messages like "Something went wrong" or "An error occurred" that don't provide useful information.
+**Description:** Error messages like "Something went wrong" or "An error occurred"
+that don't provide useful information.
 
-**Why it matters:** Generic messages make debugging difficult and provide poor user experience.
+**Why it matters:** Generic messages make debugging difficult and provide poor
+user experience.
 
 **Example:**
+
 ```typescript
 // ❌ Bad
 throw new Error('An error occurred');
@@ -184,9 +199,11 @@ throw new Error(`Failed to parse config file: ${filePath}`);
 
 **Description:** A `try...finally` block without a `catch` clause.
 
-**Why it matters:** Errors will propagate to the caller. This may be intentional for cleanup patterns, but should be verified.
+**Why it matters:** Errors will propagate to the caller. This may be intentional
+for cleanup patterns, but should be verified.
 
 **Example:**
+
 ```typescript
 // ⚠️ Review this - is error propagation intentional?
 try {
@@ -216,11 +233,14 @@ try {
 
 **Severity:** Critical
 
-**Description:** API keys, passwords, tokens, or other secrets hardcoded in source code.
+**Description:** API keys, passwords, tokens, or other secrets hardcoded in
+source code.
 
-**Why it matters:** Secrets in code get committed to version control and exposed. This is a severe security vulnerability.
+**Why it matters:** Secrets in code get committed to version control and exposed.
+This is a severe security vulnerability.
 
 **Detected patterns:**
+
 - `API_KEY = "..."`
 - `password = "..."`
 - `secret = "..."`
@@ -230,6 +250,7 @@ try {
 - Private keys (`-----BEGIN...`)
 
 **Example:**
+
 ```typescript
 // ❌ Bad - never do this
 const API_KEY = 'sk-1234567890abcdef';
@@ -251,9 +272,11 @@ const API_KEY = await secretsManager.getSecret('api-key');
 
 **Description:** SQL queries built using string concatenation with variables.
 
-**Why it matters:** SQL injection vulnerabilities allow attackers to execute arbitrary database commands.
+**Why it matters:** SQL injection vulnerabilities allow attackers to execute
+arbitrary database commands.
 
 **Example:**
+
 ```typescript
 // ❌ Bad - SQL injection vulnerability
 const query = `SELECT * FROM users WHERE id = ${userId}`;
@@ -278,6 +301,7 @@ const user = await User.findById(userId);
 **Why it matters:** Executing arbitrary code opens severe security vulnerabilities and makes code unpredictable.
 
 **Example:**
+
 ```typescript
 // ❌ Bad
 eval(userInput);
@@ -301,6 +325,7 @@ setTimeout(() => doSomething(), 1000); // arrow function
 **Why it matters:** `Math.random()` is not cryptographically secure. Attackers may be able to predict values.
 
 **Example:**
+
 ```typescript
 // ❌ Bad - predictable "random" token
 const token = Math.random().toString(36).substring(2);
@@ -327,6 +352,7 @@ const id = uuidv4();
 **Why it matters:** Magic numbers make code hard to understand and maintain. What does `86400000` mean?
 
 **Example:**
+
 ```typescript
 // ❌ Bad
 setTimeout(callback, 86400000);
@@ -353,6 +379,7 @@ if (age >= LEGAL_AGE) { ... }
 **Why it matters:** Vague TODOs are often left by AI and never addressed because no one knows what they mean.
 
 **Example:**
+
 ```typescript
 // ❌ Bad
 // TODO: fix this
@@ -362,7 +389,7 @@ if (age >= LEGAL_AGE) { ... }
 // ✅ Good - actionable TODOs
 // TODO(#123): Add retry logic for network failures
 // FIXME: Race condition when multiple users edit simultaneously
-// TODO(@john): Optimize query - currently O(n²)
+// TODO(@john): Optimize query - currently O(n^2)
 ```
 
 ---
@@ -376,6 +403,7 @@ if (age >= LEGAL_AGE) { ... }
 **Why it matters:** Dead code clutters the codebase. Use version control to preserve old code.
 
 **Example:**
+
 ```typescript
 // ❌ Bad
 // function oldImplementation() {
@@ -399,6 +427,7 @@ function newImplementation() {
 **Why it matters:** Complex functions are hard to understand, test, and maintain. AI often generates monolithic functions.
 
 **Example:**
+
 ```typescript
 // ❌ Bad - too many branches
 function processOrder(order) {
@@ -431,6 +460,7 @@ function processOrder(order) {
 **Why it matters:** AI often generates function stubs that look complete but don't actually work.
 
 **Example:**
+
 ```typescript
 // ❌ Bad
 function calculateTax(amount: number): number {

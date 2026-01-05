@@ -1,6 +1,8 @@
 # Comprehension Checkpoints
 
-Checkpoints are CodeGateway's way of ensuring you understand the code before it enters your codebase. This guide explains how checkpoints work and how to use them effectively.
+Checkpoints are CodeGateway's way of ensuring you understand the code before it
+enters your codebase. This guide explains how checkpoints work and how to use
+them effectively.
 
 ## What is a Checkpoint?
 
@@ -17,7 +19,7 @@ A checkpoint is a verification step that:
 
 When you have the git hook installed and commit code with detected patterns:
 
-```
+```bash
 $ git commit -m "Add user service"
 
 CodeGateway: Analyzing staged files...
@@ -71,7 +73,8 @@ Each detected pattern shows:
 
 ### Critical Patterns
 
-Must be acknowledged before proceeding. The "Proceed" button is disabled until all critical patterns are checked.
+Must be acknowledged before proceeding. The "Proceed" button is disabled until
+all critical patterns are checked.
 
 ### Warnings and Info
 
@@ -101,6 +104,7 @@ Providing a reason helps:
 - Maintain accountability
 
 Example reasons:
+
 - "False positive - this is test data"
 - "Intentional empty catch for cleanup"
 - "Will address in JIRA-123"
@@ -205,6 +209,7 @@ Phase 5 will add:
 ### Can't Proceed
 
 The "Proceed" button is disabled when:
+
 - Critical patterns aren't acknowledged
 - Analysis is still running
 

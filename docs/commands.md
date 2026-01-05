@@ -17,6 +17,7 @@ All commands available in CodeGateway for VS Code and Cursor.
 Analyzes the currently active file immediately, bypassing debounce.
 
 **Usage:**
+
 - Open a TypeScript/JavaScript file
 - Run the command
 - Results appear in Problems panel and inline
@@ -32,6 +33,7 @@ Analyzes the currently active file immediately, bypassing debounce.
 Analyzes all TypeScript/JavaScript files in the workspace.
 
 **Usage:**
+
 - Run the command
 - Progress shown in notification
 - Can be cancelled mid-analysis
@@ -49,6 +51,7 @@ Analyzes all TypeScript/JavaScript files in the workspace.
 Analyzes only files that are staged for commit (git index).
 
 **Usage:**
+
 - Stage files with `git add`
 - Run the command
 - Review results before committing
@@ -64,6 +67,7 @@ Analyzes only files that are staged for commit (git index).
 Removes all CodeGateway markers from Problems panel and inline decorations.
 
 **Usage:**
+
 - Run command to clear all markers
 - Analysis will re-run on next file change/save
 
@@ -80,12 +84,14 @@ Removes all CodeGateway markers from Problems panel and inline decorations.
 Installs the pre-commit hook for automatic analysis before commits.
 
 **Behavior:**
+
 1. Checks if in a git repository
 2. If hook exists, offers to update
 3. Asks about pre-push hook installation
 4. Installs hook with current settings
 
 **Settings used:**
+
 - `codegateway.blockOnCritical`
 - `codegateway.blockOnWarning`
 - `codegateway.showCheckpoint`
@@ -100,6 +106,7 @@ Installs the pre-commit hook for automatic analysis before commits.
 Removes CodeGateway git hooks.
 
 **Behavior:**
+
 1. Removes CodeGateway pre-commit hook
 2. Removes CodeGateway pre-push hook
 3. Preserves any original hooks that were present
@@ -115,12 +122,14 @@ Removes CodeGateway git hooks.
 Opens the checkpoint panel for the current file.
 
 **Usage:**
+
 1. Open a file with detected patterns
 2. Run the command
 3. Review patterns in the checkpoint panel
 4. Acknowledge issues or skip/cancel
 
 **Panel features:**
+
 - Grouped by severity (critical, warning, info)
 - Code snippets for each pattern
 - Explanations and suggestions
@@ -138,6 +147,7 @@ Opens the CodeGateway metrics dashboard.
 **Status:** Coming in Phase 5
 
 **Planned features:**
+
 - Checkpoint pass rate over time
 - Most common patterns
 - Weekly activity
@@ -184,6 +194,7 @@ CodeGateway adds an entry to the editor context menu:
 ### Quick Access
 
 Type partial matches:
+
 - `cg analyze` → matches analysis commands
 - `cg git` → matches git commands
 - `cg check` → matches checkpoint

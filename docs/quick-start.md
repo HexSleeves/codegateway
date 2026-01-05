@@ -12,7 +12,8 @@ In VS Code or Cursor:
 
 ## 2. Open a Project
 
-Open any TypeScript or JavaScript project. CodeGateway activates automatically when you open `.ts`, `.tsx`, `.js`, or `.jsx` files.
+Open any TypeScript or JavaScript project. CodeGateway activates automatically
+when you open `.ts`, `.tsx`, `.js`, or `.jsx` files.
 
 ## 3. See It in Action
 
@@ -50,6 +51,7 @@ const timeout = 86400000;
 ```
 
 You should see:
+
 - 🔴 2 Critical issues (empty catch, hardcoded secret)
 - 🟡 2 Warnings (generic names)
 - 🔵 1 Info (magic number)
@@ -71,6 +73,7 @@ To analyze code before every commit:
 3. Choose whether to also install pre-push hook
 
 Now CodeGateway will:
+
 - Analyze staged files before commit
 - Block commits with critical issues (configurable)
 - Show a summary of detected patterns
@@ -84,6 +87,7 @@ To manually verify your understanding of detected patterns:
 3. Run `CodeGateway: Trigger Comprehension Checkpoint`
 
 This opens a panel where you can:
+
 - Review all detected patterns
 - Acknowledge that you understand each issue
 - Skip with an optional reason
@@ -92,7 +96,7 @@ This opens a panel where you can:
 ## Common Commands
 
 | Command | Description |
-|---------|-------------|
+| ------- | ----------- |
 | `CodeGateway: Analyze Current File` | Analyze the active file |
 | `CodeGateway: Analyze Workspace` | Analyze all files in workspace |
 | `CodeGateway: Clear All Diagnostics` | Clear all CodeGateway markers |

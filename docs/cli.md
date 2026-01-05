@@ -1,6 +1,7 @@
 # CLI Reference
 
-The CodeGateway CLI provides command-line access to code analysis, useful for CI/CD pipelines, scripts, and terminal workflows.
+The CodeGateway CLI provides command-line access to code analysis, useful for
+CI/CD pipelines, scripts, and terminal workflows.
 
 ## Installation
 
@@ -26,13 +27,13 @@ codegateway analyze <path> [options]
 #### Arguments
 
 | Argument | Description |
-|----------|-------------|
+| -------- | ----------- |
 | `<path>` | File or directory to analyze |
 
 #### Options
 
 | Option | Description | Default |
-|--------|-------------|---------|
+| ------ | ----------- | ------- |
 | `--severity <level>` | Minimum severity: `info`, `warning`, `critical` | `info` |
 | `--json` | Output results as JSON | `false` |
 | `--fail-on <level>` | Exit with code 1 if patterns at this level found | - |
@@ -67,7 +68,7 @@ codegateway analyze . --exclude "**/*.test.ts" --exclude "**/__tests__/**"
 
 **Default (Human-readable):**
 
-```
+```bash
 Analyzing: src/
 
 src/utils/api.ts
@@ -121,7 +122,7 @@ Summary: 3 pattern(s) found
 #### Exit Codes
 
 | Code | Meaning |
-|------|---------|
+| ---- | ------- |
 | `0` | Success (no issues at `--fail-on` level) |
 | `1` | Issues found at `--fail-on` level |
 | `2` | Error (invalid arguments, file not found) |
@@ -141,9 +142,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: oven-sh/setup-bun@v1
-      
+
       - name: Run CodeGateway
         run: bunx @codegateway/cli analyze . --fail-on critical
 ```
@@ -249,7 +250,8 @@ find src -name '*.ts' | entr -c codegateway analyze src/
 codegateway analyze . --json | jq '.summary.critical'
 
 # List files with critical issues
-codegateway analyze . --json | jq -r '.files[] | select(.patterns[].severity == "critical") | .path'
+codegateway analyze . --json | jq -r '.files[] |
+  select(.patterns[].severity == "critical") | .path'
 
 # Get all hardcoded secrets
 codegateway analyze . --json | jq '.files[].patterns[] | select(.type == "hardcoded_secret")'

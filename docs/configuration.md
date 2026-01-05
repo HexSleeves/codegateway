@@ -1,6 +1,7 @@
 # Configuration Guide
 
-CodeGateway is highly configurable. This guide covers all settings and how to customize them for your workflow.
+CodeGateway is highly configurable. This guide covers all settings and how to
+customize them for your workflow.
 
 ## Accessing Settings
 
@@ -69,7 +70,7 @@ Minimum severity level to display. Options: `"info"`, `"warning"`, `"critical"`
 ```
 
 | Value | Shows |
-|-------|-------|
+| ----- | ----- |
 | `"info"` | All patterns (info, warning, critical) |
 | `"warning"` | Warnings and critical only |
 | `"critical"` | Critical patterns only |
