@@ -140,6 +140,42 @@
           "type": "boolean",
           "default": true,
           "description": "Show comprehension checkpoint before commit"
+        },
+        "codegateway.genericVariableNames": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "markdownDescription": "Additional variable names to flag as generic (e.g., `['info', 'input']`). These are added to the built-in list."
+        },
+        "codegateway.loopVariableNames": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "markdownDescription": "Additional single-letter variable names allowed in loops (e.g., `['l', 'p']`). These are added to the built-in `i`, `j`, `k`, `n`, `m`."
+        },
+        "codegateway.coordinateVariableNames": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "markdownDescription": "Additional variable names allowed for coordinates/math (e.g., `['u', 'v']`). These are added to the built-in `x`, `y`, `z`, `w`."
+        },
+        "codegateway.genericErrorMessages": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "markdownDescription": "Additional error message patterns to flag as generic (e.g., `['operation failed', 'try again']`). These are added to the built-in list."
+        },
+        "codegateway.secretPatterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "markdownDescription": "Additional regex patterns to detect hardcoded secrets. These are added to the built-in list."
+        },
+        "codegateway.excludeFiles": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["*.min.js", "*.bundle.js"],
+          "description": "File patterns to exclude from analysis"
         }
       }
     },

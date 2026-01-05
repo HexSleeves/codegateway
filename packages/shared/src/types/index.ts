@@ -192,6 +192,23 @@ export interface CustomPatternDefinition {
   suggestion?: string;
 }
 
+/**
+ * Configurable detector settings.
+ * These allow users to extend or customize the built-in detection patterns.
+ */
+export interface DetectorSettings {
+  /** Additional variable names to flag as generic (merged with built-in list) */
+  genericVariableNames?: string[];
+  /** Additional single-letter variable names allowed in loops (merged with built-in i,j,k,n,m) */
+  loopVariableNames?: string[];
+  /** Additional variable names allowed for coordinates/math (merged with built-in x,y,z,w) */
+  coordinateVariableNames?: string[];
+  /** Additional error message patterns to flag as generic (merged with built-in list) */
+  genericErrorMessages?: string[];
+  /** Additional regex patterns (as strings) to detect hardcoded secrets (merged with built-in list) */
+  secretPatterns?: string[];
+}
+
 export interface ExtensionConfig {
   // Detection settings
   enabledPatterns: PatternType[];
@@ -199,6 +216,9 @@ export interface ExtensionConfig {
   severityOverrides: Partial<Record<PatternType, Severity>>;
   excludePaths: string[];
   excludeFiles: string[];
+
+  // Detector-specific settings
+  detectorSettings?: DetectorSettings;
 
   // Checkpoint settings
   checkpointTrigger: 'pre_commit' | 'pre_push' | 'manual';

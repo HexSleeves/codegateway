@@ -1,6 +1,20 @@
-import type { ExtensionConfig, PatternType, Severity } from '@codegateway/shared';
+import type { DetectorSettings, ExtensionConfig, PatternType, Severity } from '@codegateway/shared';
 import { DEFAULT_CONFIG } from '@codegateway/shared';
 import * as vscode from 'vscode';
+
+/**
+ * Get detector-specific settings from VS Code settings
+ */
+export function getDetectorSettings(): DetectorSettings {
+  const config = vscode.workspace.getConfiguration('codegateway');
+  return {
+    genericVariableNames: config.get<string[]>('genericVariableNames') ?? [],
+    loopVariableNames: config.get<string[]>('loopVariableNames') ?? [],
+    coordinateVariableNames: config.get<string[]>('coordinateVariableNames') ?? [],
+    genericErrorMessages: config.get<string[]>('genericErrorMessages') ?? [],
+    secretPatterns: config.get<string[]>('secretPatterns') ?? [],
+  };
+}
 
 /**
  * Get extension configuration from VS Code settings
@@ -22,6 +36,7 @@ export function getConfig(): ExtensionConfig {
     enabledPatterns: config.get<PatternType[]>('enabledPatterns') ?? DEFAULT_CONFIG.enabledPatterns,
     excludeFiles: config.get<string[]>('excludeFiles') ?? DEFAULT_CONFIG.excludeFiles,
     excludePaths: config.get<string[]>('excludePaths') ?? DEFAULT_CONFIG.excludePaths,
+    detectorSettings: getDetectorSettings(),
   };
 }
 

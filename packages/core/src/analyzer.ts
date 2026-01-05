@@ -91,10 +91,11 @@ export class Analyzer {
       mergedConfig,
     );
 
-    // Run all detectors in parallel
+    // Run all detectors in parallel, passing detector settings
+    const detectorSettings = mergedConfig.detectorSettings;
     const detectorResults = await Promise.all(
       applicableDetectors.map((detector) =>
-        detector.analyze(content, filePath).catch((error) => {
+        detector.analyze(content, filePath, detectorSettings).catch((error) => {
           console.error(`Detector ${detector.id} failed:`, error);
           return [] as DetectedPattern[];
         }),

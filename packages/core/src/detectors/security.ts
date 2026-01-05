@@ -1,5 +1,10 @@
-import type { DetectedPattern, PatternType, SupportedLanguage } from '@codegateway/shared';
-import { SECRET_PATTERNS } from '@codegateway/shared';
+import type {
+  DetectedPattern,
+  DetectorSettings,
+  PatternType,
+  SupportedLanguage,
+} from '@codegateway/shared';
+import { DEFAULT_SECRET_PATTERNS } from '@codegateway/shared';
 import { Project, type SourceFile, SyntaxKind } from 'ts-morph';
 import { BaseDetector } from './base.js';
 
@@ -17,6 +22,7 @@ export class SecurityDetector extends BaseDetector {
   readonly languages: SupportedLanguage[] = ['typescript', 'javascript'];
 
   private project: Project;
+  private secretPatterns!: RegExp[];
 
   constructor() {
     super();
@@ -27,9 +33,35 @@ export class SecurityDetector extends BaseDetector {
         checkJs: false,
       },
     });
+    this.initializeSettings();
   }
 
-  async analyze(content: string, filePath: string): Promise<DetectedPattern[]> {
+  private initializeSettings(settings?: DetectorSettings): void {
+    // Start with default patterns
+    const patterns: RegExp[] = [...DEFAULT_SECRET_PATTERNS];
+
+    // Add user-configured patterns
+    if (settings?.secretPatterns) {
+      for (const pattern of settings.secretPatterns) {
+        try {
+          patterns.push(new RegExp(pattern, 'i'));
+        } catch {
+          console.warn(`CodeGateway: Invalid secret pattern regex: ${pattern}`);
+        }
+      }
+    }
+
+    this.secretPatterns = patterns;
+  }
+
+  async analyze(
+    content: string,
+    filePath: string,
+    settings?: DetectorSettings,
+  ): Promise<DetectedPattern[]> {
+    // Update settings
+    this.initializeSettings(settings);
+
     const patterns: DetectedPattern[] = [];
 
     // Skip test files and config files that commonly have mock secrets
@@ -75,7 +107,7 @@ export class SecurityDetector extends BaseDetector {
 
     // Check each line for secret patterns
     lines.forEach((line, index) => {
-      for (const pattern of SECRET_PATTERNS) {
+      for (const pattern of this.secretPatterns) {
         const match = pattern.exec(line);
         if (match) {
           // Verify it's not an environment variable reference

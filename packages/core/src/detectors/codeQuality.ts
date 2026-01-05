@@ -1,4 +1,9 @@
-import type { DetectedPattern, PatternType, SupportedLanguage } from '@codegateway/shared';
+import type {
+  DetectedPattern,
+  DetectorSettings,
+  PatternType,
+  SupportedLanguage,
+} from '@codegateway/shared';
 import { type Node, Project, type SourceFile, SyntaxKind } from 'ts-morph';
 import { BaseDetector } from './base.js';
 
@@ -29,7 +34,11 @@ export class CodeQualityDetector extends BaseDetector {
     });
   }
 
-  async analyze(content: string, filePath: string): Promise<DetectedPattern[]> {
+  async analyze(
+    content: string,
+    filePath: string,
+    _settings?: DetectorSettings,
+  ): Promise<DetectedPattern[]> {
     const patterns: DetectedPattern[] = [];
 
     const sourceFile = this.project.createSourceFile(filePath, content, {

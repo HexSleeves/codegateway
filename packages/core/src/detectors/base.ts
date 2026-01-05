@@ -1,4 +1,9 @@
-import type { DetectedPattern, PatternType, SupportedLanguage } from '@codegateway/shared';
+import type {
+  DetectedPattern,
+  DetectorSettings,
+  PatternType,
+  SupportedLanguage,
+} from '@codegateway/shared';
 
 /**
  * Base interface for all pattern detectors
@@ -15,8 +20,15 @@ export interface Detector {
 
   /**
    * Analyze source code and return detected patterns
+   * @param content The source code content
+   * @param filePath The file path
+   * @param settings Optional detector-specific settings from user configuration
    */
-  analyze(content: string, filePath: string): Promise<DetectedPattern[]>;
+  analyze(
+    content: string,
+    filePath: string,
+    settings?: DetectorSettings,
+  ): Promise<DetectedPattern[]>;
 }
 
 /**
@@ -27,7 +39,11 @@ export abstract class BaseDetector implements Detector {
   abstract readonly patterns: PatternType[];
   abstract readonly languages: SupportedLanguage[];
 
-  abstract analyze(content: string, filePath: string): Promise<DetectedPattern[]>;
+  abstract analyze(
+    content: string,
+    filePath: string,
+    settings?: DetectorSettings,
+  ): Promise<DetectedPattern[]>;
 
   /**
    * Create a DetectedPattern with common fields filled in

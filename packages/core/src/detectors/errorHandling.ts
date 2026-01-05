@@ -1,5 +1,10 @@
-import type { DetectedPattern, PatternType, SupportedLanguage } from '@codegateway/shared';
-import { GENERIC_ERROR_MESSAGES } from '@codegateway/shared';
+import type {
+  DetectedPattern,
+  DetectorSettings,
+  PatternType,
+  SupportedLanguage,
+} from '@codegateway/shared';
+import { DEFAULT_GENERIC_ERROR_MESSAGES } from '@codegateway/shared';
 import { type Block, type Node, Project, type SourceFile, SyntaxKind } from 'ts-morph';
 import { BaseDetector } from './base.js';
 
@@ -18,6 +23,7 @@ export class ErrorHandlingDetector extends BaseDetector {
   readonly languages: SupportedLanguage[] = ['typescript', 'javascript'];
 
   private project: Project;
+  private genericErrorMessages!: string[];
 
   constructor() {
     super();
@@ -28,9 +34,24 @@ export class ErrorHandlingDetector extends BaseDetector {
         checkJs: false,
       },
     });
+    this.initializeSettings();
   }
 
-  async analyze(content: string, filePath: string): Promise<DetectedPattern[]> {
+  private initializeSettings(settings?: DetectorSettings): void {
+    this.genericErrorMessages = [
+      ...DEFAULT_GENERIC_ERROR_MESSAGES,
+      ...(settings?.genericErrorMessages?.map((s) => s.toLowerCase()) ?? []),
+    ];
+  }
+
+  async analyze(
+    content: string,
+    filePath: string,
+    settings?: DetectorSettings,
+  ): Promise<DetectedPattern[]> {
+    // Update settings
+    this.initializeSettings(settings);
+
     const patterns: DetectedPattern[] = [];
 
     const sourceFile = this.project.createSourceFile(filePath, content, {
@@ -258,7 +279,7 @@ export class ErrorHandlingDetector extends BaseDetector {
     sourceFile.getDescendantsOfKind(SyntaxKind.StringLiteral).forEach((literal) => {
       const text = literal.getLiteralText().toLowerCase();
 
-      const isGeneric = GENERIC_ERROR_MESSAGES.some(
+      const isGeneric = this.genericErrorMessages.some(
         (msg) => text === msg || (text.length < 30 && text.includes(msg)),
       );
 

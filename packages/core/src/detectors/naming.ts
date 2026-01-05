@@ -1,8 +1,13 @@
-import type { DetectedPattern, PatternType, SupportedLanguage } from '@codegateway/shared';
+import type {
+  DetectedPattern,
+  DetectorSettings,
+  PatternType,
+  SupportedLanguage,
+} from '@codegateway/shared';
 import {
-  COORDINATE_VARIABLE_NAMES,
-  GENERIC_VARIABLE_NAMES,
-  LOOP_VARIABLE_NAMES,
+  DEFAULT_COORDINATE_VARIABLE_NAMES,
+  DEFAULT_GENERIC_VARIABLE_NAMES,
+  DEFAULT_LOOP_VARIABLE_NAMES,
 } from '@codegateway/shared';
 import { type Node, Project, type SourceFile, SyntaxKind } from 'ts-morph';
 import { BaseDetector } from './base.js';
@@ -17,6 +22,11 @@ export class NamingPatternDetector extends BaseDetector {
 
   private readonly project: Project;
 
+  // Cached sets that may be modified by settings
+  private genericVariableNames!: Set<string>;
+  private loopVariableNames!: Set<string>;
+  private coordinateVariableNames!: Set<string>;
+
   constructor() {
     super();
     this.project = new Project({
@@ -26,9 +36,36 @@ export class NamingPatternDetector extends BaseDetector {
         checkJs: false,
       },
     });
+    // Initialize with defaults
+    this.initializeSets();
   }
 
-  async analyze(content: string, filePath: string): Promise<DetectedPattern[]> {
+  private initializeSets(settings?: DetectorSettings): void {
+    // Build sets from defaults + user settings
+    this.genericVariableNames = new Set([
+      ...DEFAULT_GENERIC_VARIABLE_NAMES,
+      ...(settings?.genericVariableNames?.map((s) => s.toLowerCase()) ?? []),
+    ]);
+
+    this.loopVariableNames = new Set([
+      ...DEFAULT_LOOP_VARIABLE_NAMES,
+      ...(settings?.loopVariableNames ?? []),
+    ]);
+
+    this.coordinateVariableNames = new Set([
+      ...DEFAULT_COORDINATE_VARIABLE_NAMES,
+      ...(settings?.coordinateVariableNames ?? []),
+    ]);
+  }
+
+  async analyze(
+    content: string,
+    filePath: string,
+    settings?: DetectorSettings,
+  ): Promise<DetectedPattern[]> {
+    // Update sets based on settings
+    this.initializeSets(settings);
+
     const patterns: DetectedPattern[] = [];
 
     // Create a source file from the content
@@ -187,14 +224,16 @@ export class NamingPatternDetector extends BaseDetector {
 
   private isGenericName(name: string): boolean {
     return (
-      GENERIC_VARIABLE_NAMES.has(name.toLowerCase()) ||
-      (name.length === 1 && !LOOP_VARIABLE_NAMES.has(name) && !COORDINATE_VARIABLE_NAMES.has(name))
+      this.genericVariableNames.has(name.toLowerCase()) ||
+      (name.length === 1 &&
+        !this.loopVariableNames.has(name) &&
+        !this.coordinateVariableNames.has(name))
     );
   }
 
   private isAcceptableContext(node: Node, name: string): boolean {
     // Loop variables in for loops
-    if (LOOP_VARIABLE_NAMES.has(name)) {
+    if (this.loopVariableNames.has(name)) {
       const forStatement = node.getFirstAncestorByKind(SyntaxKind.ForStatement);
       const forOfStatement = node.getFirstAncestorByKind(SyntaxKind.ForOfStatement);
       const forInStatement = node.getFirstAncestorByKind(SyntaxKind.ForInStatement);
@@ -202,7 +241,7 @@ export class NamingPatternDetector extends BaseDetector {
     }
 
     // Coordinate variables
-    if (COORDINATE_VARIABLE_NAMES.has(name)) {
+    if (this.coordinateVariableNames.has(name)) {
       return true; // Allow x, y, z without context check for now
     }
 

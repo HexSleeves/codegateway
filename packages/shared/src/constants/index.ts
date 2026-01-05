@@ -155,9 +155,10 @@ export const EXTENSION_TO_LANGUAGE: Record<string, string> = {
 };
 
 /**
- * Generic variable names that indicate potential AI-generated code
+ * Default generic variable names that indicate potential AI-generated code.
+ * These are the built-in defaults that can be extended via VS Code settings.
  */
-export const GENERIC_VARIABLE_NAMES = new Set([
+export const DEFAULT_GENERIC_VARIABLE_NAMES: readonly string[] = [
   'data',
   'result',
   'results',
@@ -190,22 +191,40 @@ export const GENERIC_VARIABLE_NAMES = new Set([
   'return',
   'output',
   'out',
-]);
+];
 
 /**
- * Acceptable single-letter variable names in loop contexts
+ * @deprecated Use DEFAULT_GENERIC_VARIABLE_NAMES with configuration. This Set is kept for backwards compatibility.
  */
-export const LOOP_VARIABLE_NAMES = new Set(['i', 'j', 'k', 'n', 'm']);
+export const GENERIC_VARIABLE_NAMES = new Set(DEFAULT_GENERIC_VARIABLE_NAMES);
 
 /**
- * Acceptable single-letter variable names in coordinate/math contexts
+ * Default acceptable single-letter variable names in loop contexts.
+ * These are the built-in defaults that can be extended via VS Code settings.
  */
-export const COORDINATE_VARIABLE_NAMES = new Set(['x', 'y', 'z', 'w']);
+export const DEFAULT_LOOP_VARIABLE_NAMES: readonly string[] = ['i', 'j', 'k', 'n', 'm'];
 
 /**
- * Patterns that indicate hardcoded secrets
+ * @deprecated Use DEFAULT_LOOP_VARIABLE_NAMES with configuration. This Set is kept for backwards compatibility.
  */
-export const SECRET_PATTERNS = [
+export const LOOP_VARIABLE_NAMES = new Set(DEFAULT_LOOP_VARIABLE_NAMES);
+
+/**
+ * Default acceptable single-letter variable names in coordinate/math contexts.
+ * These are the built-in defaults that can be extended via VS Code settings.
+ */
+export const DEFAULT_COORDINATE_VARIABLE_NAMES: readonly string[] = ['x', 'y', 'z', 'w'];
+
+/**
+ * @deprecated Use DEFAULT_COORDINATE_VARIABLE_NAMES with configuration. This Set is kept for backwards compatibility.
+ */
+export const COORDINATE_VARIABLE_NAMES = new Set(DEFAULT_COORDINATE_VARIABLE_NAMES);
+
+/**
+ * Default patterns that indicate hardcoded secrets.
+ * These are the built-in defaults that can be extended via VS Code settings.
+ */
+export const DEFAULT_SECRET_PATTERNS: readonly RegExp[] = [
   /(?:api[_-]?key|apikey)\s*[:=]\s*['"][^'"]+['"]/i,
   /(?:secret|password|passwd|pwd)\s*[:=]\s*['"][^'"]+['"]/i,
   /(?:token|auth)\s*[:=]\s*['"][^'"]+['"]/i,
@@ -215,9 +234,15 @@ export const SECRET_PATTERNS = [
 ];
 
 /**
- * Generic error messages that provide no debugging context
+ * @deprecated Use DEFAULT_SECRET_PATTERNS with configuration. This array is kept for backwards compatibility.
  */
-export const GENERIC_ERROR_MESSAGES = [
+export const SECRET_PATTERNS = DEFAULT_SECRET_PATTERNS;
+
+/**
+ * Default generic error messages that provide no debugging context.
+ * These are the built-in defaults that can be extended via VS Code settings.
+ */
+export const DEFAULT_GENERIC_ERROR_MESSAGES: readonly string[] = [
   'an error occurred',
   'something went wrong',
   'error',
@@ -227,3 +252,8 @@ export const GENERIC_ERROR_MESSAGES = [
   'internal error',
   'unexpected error',
 ];
+
+/**
+ * @deprecated Use DEFAULT_GENERIC_ERROR_MESSAGES with configuration. This array is kept for backwards compatibility.
+ */
+export const GENERIC_ERROR_MESSAGES = DEFAULT_GENERIC_ERROR_MESSAGES;
