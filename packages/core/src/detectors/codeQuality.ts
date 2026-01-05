@@ -1,4 +1,4 @@
-import { Project, SyntaxKind, SourceFile, Node } from 'ts-morph';
+import { Project, SyntaxKind, SourceFile, Node, NumericLiteral } from 'ts-morph';
 import type { DetectedPattern, PatternType, SupportedLanguage } from '@codegateway/shared';
 import { BaseDetector } from './base.js';
 
@@ -53,65 +53,100 @@ export class CodeQualityDetector extends BaseDetector {
   ): DetectedPattern[] {
     const patterns: DetectedPattern[] = [];
 
-    // Acceptable magic numbers
-    const acceptableNumbers = new Set([0, 1, 2, -1, 100, 1000, 60, 24, 365]);
-
     sourceFile.getDescendantsOfKind(SyntaxKind.NumericLiteral).forEach((literal) => {
       const value = literal.getLiteralValue();
 
-      // Skip acceptable numbers
-      if (acceptableNumbers.has(value)) return;
-
-      // Skip if it's in an obvious context
-      const parent = literal.getParent();
-
-      // Skip array indices
-      if (parent?.getKind() === SyntaxKind.ElementAccessExpression) return;
-
-      // Skip if it's a const declaration (likely intentional)
-      const varDecl = literal.getFirstAncestorByKind(SyntaxKind.VariableDeclaration);
-      if (varDecl) {
-        const statement = varDecl.getFirstAncestorByKind(SyntaxKind.VariableStatement);
-        if (statement?.getDeclarationKind() === 'const') {
-          // This is a const, so it's likely named - check if it's a meaningful name
-          const name = varDecl.getName();
-          if (name.length > 3 || /[A-Z_]/.test(name)) return;
-        }
+      if (this.shouldSkipNumber(literal, value)) {
+        return;
       }
 
-      // Skip if in a switch case
-      if (literal.getFirstAncestorByKind(SyntaxKind.CaseClause)) return;
-
-      // Skip if part of an object literal key
-      if (parent?.getKind() === SyntaxKind.PropertyAssignment) return;
-
-      // Check if it looks like a "magic" number
-      const isMagic =
-        (value > 2 && value < 100 && !Number.isInteger(Math.log10(value))) || // Non-round numbers
-        (value >= 100 && value !== 100 && value !== 1000 && value !== 10000); // Large non-round numbers
-
-      if (isMagic) {
-        patterns.push(
-          this.createPattern(
-            'magic_number',
-            filePath,
-            literal.getStartLineNumber(),
-            literal.getEndLineNumber(),
-            `Magic number ${value} without explanation`,
-            'Magic numbers make code harder to understand and maintain. ' +
-              'Consider extracting to a named constant that explains its purpose.',
-            literal.getParent()?.getText() ?? literal.getText(),
-            {
-              severity: 'info',
-              suggestion: `const DESCRIPTIVE_NAME = ${value}; // Add explanation here`,
-              confidence: 0.6,
-            }
-          )
-        );
+      if (this.isMagicNumber(value)) {
+        patterns.push(this.createMagicNumberPattern(literal, value, filePath));
       }
     });
 
     return patterns;
+  }
+
+  private shouldSkipNumber(literal: NumericLiteral, value: number): boolean {
+    return (
+      this.isAcceptableNumber(value) ||
+      this.isArrayIndex(literal) ||
+      this.isNamedConstant(literal) ||
+      this.isSwitchCaseValue(literal) ||
+      this.isObjectPropertyKey(literal)
+    );
+  }
+
+  private isAcceptableNumber(value: number): boolean {
+    const acceptableNumbers = new Set([0, 1, 2, -1, 100, 1000, 60, 24, 365]);
+    return acceptableNumbers.has(value);
+  }
+
+  private isArrayIndex(literal: NumericLiteral): boolean {
+    const parent = literal.getParent();
+    return parent?.getKind() === SyntaxKind.ElementAccessExpression;
+  }
+
+  private isNamedConstant(literal: NumericLiteral): boolean {
+    const varDecl = literal.getFirstAncestorByKind(SyntaxKind.VariableDeclaration);
+    if (!varDecl) {
+      return false;
+    }
+
+    const statement = varDecl.getFirstAncestorByKind(SyntaxKind.VariableStatement);
+    if (statement?.getDeclarationKind() !== 'const') {
+      return false;
+    }
+
+    // This is a const with a meaningful name
+    const name = varDecl.getName();
+    return name.length > 3 || /[A-Z_]/.test(name);
+  }
+
+  private isSwitchCaseValue(literal: NumericLiteral): boolean {
+    return literal.getFirstAncestorByKind(SyntaxKind.CaseClause) !== undefined;
+  }
+
+  private isObjectPropertyKey(literal: NumericLiteral): boolean {
+    const parent = literal.getParent();
+    return parent?.getKind() === SyntaxKind.PropertyAssignment;
+  }
+
+  private isMagicNumber(value: number): boolean {
+    // Non-round numbers between 2 and 100
+    if (value > 2 && value < 100 && !Number.isInteger(Math.log10(value))) {
+      return true;
+    }
+
+    // Large non-round numbers
+    if (value >= 100 && value !== 100 && value !== 1000 && value !== 10000) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private createMagicNumberPattern(
+    literal: NumericLiteral,
+    value: number,
+    filePath: string
+  ): DetectedPattern {
+    return this.createPattern(
+      'magic_number',
+      filePath,
+      literal.getStartLineNumber(),
+      literal.getEndLineNumber(),
+      `Magic number ${value} without explanation`,
+      'Magic numbers make code harder to understand and maintain. ' +
+        'Consider extracting to a named constant that explains its purpose.',
+      literal.getParent()?.getText() ?? literal.getText(),
+      {
+        severity: 'info',
+        suggestion: `const DESCRIPTIVE_NAME = ${value}; // Add explanation here`,
+        confidence: 0.6,
+      }
+    );
   }
 
   private detectTodoWithoutContext(
