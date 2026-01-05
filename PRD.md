@@ -16,7 +16,7 @@ last_updated: 2026-01-05
 
 **One-Line Pitch:** "Spell-check for AI-assisted coding" - automatically detects AI-generated patterns, prompts comprehension verification, and tracks the relationship between AI code and production incidents.
 
-**Target Users:** 
+**Target Users:**
 - Individual developers who use GitHub Copilot, Cursor, or other AI coding assistants
 - Engineering managers concerned about code quality and maintainability
 - Security-conscious teams (fintech, healthcare, enterprise)

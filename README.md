@@ -20,66 +20,68 @@ CodeGateway automatically detects AI-generated code patterns, prompts comprehens
 
 CodeGateway sits between AI code generation and version control, ensuring you actually understand the code before it enters your codebase - without killing velocity.
 
+## Quick Start
+
+```bash
+# Install via VS Code
+# 1. Open Extensions (Ctrl+Shift+X)
+# 2. Search "CodeGateway"
+# 3. Click Install
+
+# Or install via command line
+code --install-extension codegateway.codegateway
+```
+
+See the [Quick Start Guide](./docs/quick-start.md) for a 5-minute introduction.
+
 ## Features
 
 ### Pattern Detection
 
 CodeGateway detects 20+ pattern types across categories:
 
-**Naming Issues**
-- Generic variable names (`data`, `result`, `temp`)
-- Inconsistent naming conventions
+| Category | Patterns |
+|----------|----------|
+| **Naming** | Generic names (`data`, `result`), inconsistent conventions |
+| **Error Handling** | Empty catch blocks, swallowed errors, missing boundaries |
+| **Security** | Hardcoded secrets, SQL injection, unsafe eval |
+| **Code Quality** | Magic numbers, vague TODOs, complex functions |
 
-**Error Handling**
-- Empty catch blocks
-- Swallowed errors (caught but not used)
-- Missing error boundaries in async code
-- Generic error messages
-
-**Security**
-- Hardcoded secrets and API keys
-- SQL concatenation (injection risk)
-- Unsafe `eval()` usage
-- Insecure randomness in security contexts
-
-**Code Quality**
-- Magic numbers
-- TODOs without context
-- Commented-out code
-- Overly complex functions (cyclomatic complexity)
-- Placeholder implementations
+See [Pattern Reference](./docs/patterns.md) for the complete list.
 
 ### VS Code Integration
 
-- **Problems Panel**: All detected patterns show in VS Code's Problems panel
-- **Inline Decorations**: Wavy underlines indicate issues directly in the editor
+- **Problems Panel**: All detected patterns in VS Code's Problems panel
+- **Inline Decorations**: Wavy underlines directly in the editor
 - **Status Bar**: Quick summary of pattern counts
-- **Commands**: Analyze on demand or automatically on save/open
+- **Git Hooks**: Pre-commit analysis with blocking
+- **Checkpoints**: Comprehension verification UI
 
-## Installation
-
-### From Source
+### CLI for CI/CD
 
 ```bash
-# Clone the repository
-git clone https://github.com/codegateway/codegateway.git
-cd codegateway
+# Analyze and fail on critical issues
+codegateway analyze . --fail-on critical
 
-# Install Bun (if not already installed)
-curl -fsSL https://bun.sh/install | bash
-
-# Install dependencies
-bun install
-
-# Build all packages
-bun run build
-
-# Package the extension
-cd packages/extension
-bun run package
+# JSON output for scripts
+codegateway analyze . --json
 ```
 
-Then install the `.vsix` file in VS Code.
+See [CLI Reference](./docs/cli.md) for all options.
+
+## Documentation
+
+| Guide | Description |
+|-------|-------------|
+| [Installation](./docs/installation.md) | All installation methods |
+| [Quick Start](./docs/quick-start.md) | Get running in 5 minutes |
+| [Configuration](./docs/configuration.md) | All settings explained |
+| [Pattern Reference](./docs/patterns.md) | What each pattern means |
+| [Git Integration](./docs/git-integration.md) | Pre-commit hooks setup |
+| [Checkpoints](./docs/checkpoints.md) | Comprehension verification |
+| [Commands](./docs/commands.md) | All VS Code commands |
+| [CLI Reference](./docs/cli.md) | Command-line usage |
+| [Troubleshooting](./docs/troubleshooting.md) | Common issues & solutions |
 
 ## CLI Usage
 
@@ -104,47 +106,47 @@ bun packages/cli/dist/index.js analyze . --fail-on critical
 
 ## Configuration
 
-Configure CodeGateway in VS Code settings:
-
 ```json
 {
-  "codegateway.enabledPatterns": [
-    "generic_variable_name",
-    "empty_catch_block",
-    "hardcoded_secret",
-    // ... see full list in settings
-  ],
   "codegateway.minSeverity": "info",
   "codegateway.analyzeOnSave": true,
-  "codegateway.analyzeOnOpen": true,
-  "codegateway.showInlineHints": true,
-  "codegateway.excludePaths": [
-    "**/node_modules/**",
-    "**/dist/**"
-  ]
+  "codegateway.blockOnCritical": true,
+  "codegateway.excludePaths": ["**/node_modules/**"]
 }
 ```
+
+See [Configuration Guide](./docs/configuration.md) for all options.
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `CodeGateway: Analyze Current File` | Analyze the active file immediately |
-| `CodeGateway: Analyze Workspace` | Analyze all TypeScript/JavaScript files |
-| `CodeGateway: Clear All Diagnostics` | Clear all CodeGateway diagnostics |
-| `CodeGateway: Show Dashboard` | Open the CodeGateway dashboard (coming soon) |
+| `CodeGateway: Analyze Current File` | Analyze the active file |
+| `CodeGateway: Analyze Workspace` | Analyze all files |
+| `CodeGateway: Install Git Hook` | Set up pre-commit hook |
+| `CodeGateway: Trigger Checkpoint` | Manual comprehension check |
+
+See [Commands Reference](./docs/commands.md) for the full list.
+
+## Severity Levels
+
+| Level | Icon | Action |
+|-------|------|--------|
+| **Critical** | 🔴 | Blocks commit (configurable) |
+| **Warning** | 🟡 | Shown, doesn't block |
+| **Info** | 🔵 | Suggestions only |
 
 ## Project Structure
 
 ```
 codegateway/
 ├── packages/
-│   ├── shared/          # Shared types and utilities
-│   ├── core/            # Analysis engine and detectors
-│   └── extension/       # VS Code extension
-├── package.json
-├── pnpm-workspace.yaml
-└── turbo.json
+│   ├── shared/      # Types and utilities
+│   ├── core/        # Analysis engine
+│   ├── cli/         # Command-line interface
+│   └── extension/   # VS Code extension
+├── docs/            # Documentation
+└── demo/            # Web demo
 ```
 
 ## Development
@@ -159,38 +161,36 @@ bun run build
 # Run tests
 bun test
 
-# Watch mode for development
+# Lint and format
+bun run check
+
+# Watch mode
 bun run dev
 ```
 
-### Running the Extension in Development
+### Running in Development
 
-1. Open the project in VS Code
-2. Press F5 to launch the Extension Development Host
-3. Open a TypeScript/JavaScript file to see CodeGateway in action
-
-## Severity Levels
-
-- **Critical** (🔴): Issues that should block commit - empty catch blocks, hardcoded secrets, unsafe eval
-- **Warning** (🟡): Issues that need attention - generic names, missing error boundaries, complex functions  
-- **Info** (🔵): Suggestions for improvement - magic numbers, TODOs, minor style issues
+1. Open project in VS Code
+2. Press `F5` to launch Extension Development Host
+3. Open a TypeScript/JavaScript file
 
 ## Roadmap
 
 - [x] Core pattern detection engine
 - [x] VS Code extension with diagnostics
 - [x] TypeScript/JavaScript support
-- [ ] Comprehension checkpoints (pre-commit questions)
-- [ ] Git hook integration
+- [x] Git hook integration
+- [x] Checkpoint UI
+- [ ] Comprehension questions
 - [ ] Local metrics dashboard
 - [ ] Python, Rust, Go support
 - [ ] Cloud sync for teams
-- [ ] CI/CD integration (CLI + GitHub Action)
+- [ ] GitHub Action
+
+## Contributing
+
+Contributions welcome! Please read our [contributing guidelines](./CONTRIBUTING.md) first.
 
 ## License
 
 MIT
-
-## Contributing
-
-Contributions welcome! Please read our contributing guidelines first.
