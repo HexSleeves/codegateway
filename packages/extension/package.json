@@ -158,6 +158,7 @@
     "clean": "rm -rf dist out",
     "typecheck": "tsc --noEmit",
     "test": "echo 'No tests'",
+    "format": "biome format --write .",
     "package": "vsce package --no-dependencies",
     "vscode:prepublish": "bun run build"
   },
@@ -166,6 +167,7 @@
     "@codegateway/shared": "workspace:*"
   },
   "devDependencies": {
+    "@biomejs/biome": "latest",
     "@types/vscode": "^1.85.0",
     "@types/node": "^20.0.0",
     "@types/bun": "latest",

@@ -4,13 +4,15 @@
   "type": "module",
   "scripts": {
     "dev": "bun run src/server.ts",
-    "build": "bun build src/client/index.ts --outdir=dist --minify"
+    "build": "bun build src/server.ts --outdir=dist --minify",
+    "format": "biome format --write ."
   },
   "dependencies": {
     "@codegateway/core": "workspace:*",
     "@codegateway/shared": "workspace:*"
   },
   "devDependencies": {
+    "@biomejs/biome": "latest",
     "@types/bun": "latest"
   }
 }

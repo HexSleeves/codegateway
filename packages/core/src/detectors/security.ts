@@ -37,7 +37,9 @@ export class SecurityDetector extends BaseDetector {
       return patterns;
     }
 
-    const sourceFile = this.project.createSourceFile(filePath, content, { overwrite: true });
+    const sourceFile = this.project.createSourceFile(filePath, content, {
+      overwrite: true,
+    });
 
     try {
       patterns.push(...this.detectHardcodedSecrets(sourceFile, filePath, content));

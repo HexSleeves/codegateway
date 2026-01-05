@@ -15,7 +15,7 @@ export class NamingPatternDetector extends BaseDetector {
   readonly patterns: PatternType[] = ['generic_variable_name', 'inconsistent_naming'];
   readonly languages: SupportedLanguage[] = ['typescript', 'javascript'];
 
-  private project: Project;
+  private readonly project: Project;
 
   constructor() {
     super();
@@ -32,17 +32,17 @@ export class NamingPatternDetector extends BaseDetector {
     const patterns: DetectedPattern[] = [];
 
     // Create a source file from the content
-    const sourceFile = this.project.createSourceFile(filePath, content, { overwrite: true });
+    const sourceFile = this.project.createSourceFile(filePath, content, {
+      overwrite: true,
+    });
 
     try {
       // Check variable declarations
-      patterns.push(...this.analyzeVariableDeclarations(sourceFile, filePath));
-
-      // Check function parameters
-      patterns.push(...this.analyzeFunctionParameters(sourceFile, filePath));
-
-      // Check for inconsistent naming conventions
-      patterns.push(...this.analyzeNamingConsistency(sourceFile, filePath));
+      patterns.push(
+        ...this.analyzeVariableDeclarations(sourceFile, filePath),
+        ...this.analyzeFunctionParameters(sourceFile, filePath),
+        ...this.analyzeNamingConsistency(sourceFile, filePath),
+      );
     } finally {
       // Clean up
       this.project.removeSourceFile(sourceFile);

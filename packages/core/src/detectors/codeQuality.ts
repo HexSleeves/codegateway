@@ -32,7 +32,9 @@ export class CodeQualityDetector extends BaseDetector {
   async analyze(content: string, filePath: string): Promise<DetectedPattern[]> {
     const patterns: DetectedPattern[] = [];
 
-    const sourceFile = this.project.createSourceFile(filePath, content, { overwrite: true });
+    const sourceFile = this.project.createSourceFile(filePath, content, {
+      overwrite: true,
+    });
 
     try {
       patterns.push(...this.detectMagicNumbers(sourceFile, filePath));

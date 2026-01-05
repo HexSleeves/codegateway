@@ -15,7 +15,7 @@
     "clean": "turbo run clean && rm -rf .turbo node_modules/.cache",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
-    "format": "biome format --write .",
+    "format": "turbo run format",
     "check": "biome check --write ."
   },
   "devDependencies": {

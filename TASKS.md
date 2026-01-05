@@ -243,6 +243,7 @@
 ## Quick Reference
 
 ### Build & Test
+
 ```bash
 bun install          # Install dependencies
 bun run build        # Build all packages
@@ -251,9 +252,11 @@ bun demo/src/server.ts  # Start demo
 ```
 
 ### Demo URL
-https://jade-harbor.exe.xyz:8080/
+
+<https://jade-harbor.exe.xyz:8080/>
 
 ### CLI Usage
+
 ```bash
 bun packages/cli/dist/index.js analyze <file>
 bun packages/cli/dist/index.js analyze . --severity warning
