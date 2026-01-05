@@ -1,3 +1,9 @@
+---
+title: CodeGateway Development Guide
+description: Guidelines for AI agents working on the CodeGateway project
+last_updated: 2026-01-05
+---
+
 # AGENTS.md - CodeGateway Development Guide
 
 This document provides guidelines for AI agents working on the CodeGateway project.

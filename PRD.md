@@ -1,17 +1,14 @@
-# CodeGateway - AI Code Review Trust Layer
-
-## Document Metadata
-
-```yaml
+---
 document_type: prompt_requirements_document
 version: 1.0.0
 created: 2026-01-02
 project_codename: codegateway
 target_ai: claude-opus
 human_author: jake
-```
-
+last_updated: 2026-01-05
 ---
+
+# CodeGateway - AI Code Review Trust Layer
 
 ## Executive Summary
 

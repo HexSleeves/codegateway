@@ -1,3 +1,9 @@
+---
+title: CodeGateway
+description: AI Code Review Trust Layer - Spell-check for AI-assisted coding
+last_updated: 2026-01-05
+---
+
 # CodeGateway - AI Code Review Trust Layer
 
 > "Spell-check for AI-assisted coding"
@@ -74,6 +80,27 @@ bun run package
 ```
 
 Then install the `.vsix` file in VS Code.
+
+## CLI Usage
+
+CodeGateway includes a command-line interface for analyzing files and directories, suitable for CI/CD pipelines or local checks.
+
+```bash
+# Analyze a specific file
+bun packages/cli/dist/index.js analyze src/main.ts
+
+# Analyze the current directory
+bun packages/cli/dist/index.js analyze .
+
+# Analyze with severity threshold (only show warnings and critical)
+bun packages/cli/dist/index.js analyze . --severity warning
+
+# Analyze and output results as JSON
+bun packages/cli/dist/index.js analyze . --json
+
+# Fail with exit code 1 if critical issues are found
+bun packages/cli/dist/index.js analyze . --fail-on critical
+```
 
 ## Configuration
 

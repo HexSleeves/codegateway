@@ -1,3 +1,9 @@
+---
+title: CodeGateway Task Tracker
+description: Tracking development progress and roadmap for CodeGateway
+last_updated: 2026-01-05
+---
+
 # CodeGateway - Task Tracker
 
 ## Phase 1: Extension Foundation (Weeks 1-2)
