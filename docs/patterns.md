@@ -40,6 +40,8 @@ const activeUsers = users.filter(user => user.active);
 
 **Exceptions:** Loop variables (`for (const item of items)`), catch clause parameters (`catch (error)`).
 
+**Customization:** Add your own generic names via `codegateway.genericVariableNames` setting.
+
 ---
 
 ### `inconsistent_naming`
@@ -191,6 +193,8 @@ throw new Error('An error occurred');
 throw new Error(`Failed to parse config file: ${filePath}`);
 ```
 
+**Customization:** Add your own generic error messages to flag via `codegateway.genericErrorMessages` setting.
+
 ---
 
 ### `try_without_catch`
@@ -248,6 +252,8 @@ This is a severe security vulnerability.
 - AWS access keys (`AKIA...`)
 - JWT tokens (`eyJ...`)
 - Private keys (`-----BEGIN...`)
+
+**Customization:** Add your own secret patterns via `codegateway.secretPatterns` setting.
 
 **Example:**
 

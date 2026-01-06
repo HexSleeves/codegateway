@@ -5,8 +5,8 @@ import * as vscode from 'vscode';
  * Manages inline decorations for detected patterns
  */
 export class DecorationManager {
-  private decorationTypes: Map<Severity, vscode.TextEditorDecorationType> = new Map();
-  private activeDecorations: Map<string, vscode.Range[]> = new Map();
+  private readonly decorationTypes: Map<Severity, vscode.TextEditorDecorationType> = new Map();
+  private readonly activeDecorations: Map<string, vscode.Range[]> = new Map();
 
   constructor() {
     this.initializeDecorationTypes();

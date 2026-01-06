@@ -1,7 +1,7 @@
 ---
 title: CodeGateway
 description: AI Code Review Trust Layer - Spell-check for AI-assisted coding
-last_updated: 2026-01-05
+last_updated: 2026-01-06
 ---
 
 # CodeGateway - AI Code Review Trust Layer
@@ -111,7 +111,12 @@ bun packages/cli/dist/index.js analyze . --fail-on critical
   "codegateway.minSeverity": "info",
   "codegateway.analyzeOnSave": true,
   "codegateway.blockOnCritical": true,
-  "codegateway.excludePaths": ["**/node_modules/**"]
+  "codegateway.excludePaths": ["**/node_modules/**"],
+  
+  // Extend built-in detection patterns
+  "codegateway.genericVariableNames": ["info", "input"],
+  "codegateway.coordinateVariableNames": ["u", "v"],
+  "codegateway.secretPatterns": ["MY_CUSTOM_KEY_[A-Z0-9]+"]
 }
 ```
 
@@ -140,9 +145,10 @@ See [Commands Reference](./docs/commands.md) for the full list.
 
 ```
 codegateway/
+├── .devcontainer/   # VS Code dev container config
 ├── packages/
-│   ├── shared/      # Types and utilities
-│   ├── core/        # Analysis engine
+│   ├── shared/      # Types, constants, and utilities
+│   ├── core/        # Analysis engine and detectors
 │   ├── cli/         # Command-line interface
 │   └── extension/   # VS Code extension
 ├── docs/            # Documentation
@@ -151,7 +157,19 @@ codegateway/
 
 ## Development
 
+### Using Dev Container (Recommended)
+
+1. Open project in VS Code
+2. Click "Reopen in Container" when prompted
+3. Wait for container to build and dependencies to install
+4. Press `F5` to launch Extension Development Host
+
+### Manual Setup
+
 ```bash
+# Install Bun (if not installed)
+curl -fsSL https://bun.sh/install | bash
+
 # Install dependencies
 bun install
 
@@ -164,15 +182,19 @@ bun test
 # Lint and format
 bun run check
 
+# Type check
+bun run typecheck
+
 # Watch mode
 bun run dev
 ```
 
-### Running in Development
+### Running the Extension in Development
 
 1. Open project in VS Code
 2. Press `F5` to launch Extension Development Host
 3. Open a TypeScript/JavaScript file
+4. Check the Problems panel and inline decorations
 
 ## Roadmap
 

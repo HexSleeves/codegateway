@@ -22,7 +22,7 @@ export class ErrorHandlingDetector extends BaseDetector {
   ];
   readonly languages: SupportedLanguage[] = ['typescript', 'javascript'];
 
-  private project: Project;
+  private readonly project: Project;
   private genericErrorMessages!: string[];
 
   constructor() {
@@ -59,11 +59,13 @@ export class ErrorHandlingDetector extends BaseDetector {
     });
 
     try {
-      patterns.push(...this.detectEmptyCatchBlocks(sourceFile, filePath));
-      patterns.push(...this.detectSwallowedErrors(sourceFile, filePath));
-      patterns.push(...this.detectTryWithoutCatch(sourceFile, filePath));
-      patterns.push(...this.detectMissingErrorBoundaries(sourceFile, filePath));
-      patterns.push(...this.detectGenericErrorMessages(sourceFile, filePath));
+      patterns.push(
+        ...this.detectEmptyCatchBlocks(sourceFile, filePath),
+        ...this.detectSwallowedErrors(sourceFile, filePath),
+        ...this.detectTryWithoutCatch(sourceFile, filePath),
+        ...this.detectMissingErrorBoundaries(sourceFile, filePath),
+        ...this.detectGenericErrorMessages(sourceFile, filePath),
+      );
     } finally {
       this.project.removeSourceFile(sourceFile);
     }
@@ -167,7 +169,7 @@ export class ErrorHandlingDetector extends BaseDetector {
             {
               severity: 'critical',
               suggestion: 'Add a catch clause to handle errors, or a finally clause for cleanup',
-              confidence: 1.0,
+              confidence: 1,
             },
           ),
         );
@@ -248,6 +250,7 @@ export class ErrorHandlingDetector extends BaseDetector {
 
       if (unprotectedAwaits.length > 0) {
         const funcName = this.getFunctionName(func);
+        const functionName = funcName ? ` "${funcName}"` : '';
 
         patterns.push(
           this.createPattern(
@@ -255,7 +258,7 @@ export class ErrorHandlingDetector extends BaseDetector {
             filePath,
             func.getStartLineNumber(),
             Math.min(func.getEndLineNumber(), func.getStartLineNumber() + 10),
-            `Async function${funcName ? ` "${funcName}"` : ''} has unhandled promise rejections`,
+            `Async function${functionName} has unhandled promise rejections`,
             `This async function has ${unprotectedAwaits.length} await expression(s) without error handling. ` +
               'Unhandled rejections can crash your application or cause silent failures.',
             this.truncateCode(func.getText(), 300),

@@ -100,6 +100,23 @@ last_updated: 2026-01-05
 - [x] Track skipped checkpoints
 - [x] Store checkpoint history (VS Code globalState, SQLite in Phase 5)
 
+## Phase 3.5: Configuration & Developer Experience
+
+- [x] Make detector constants configurable via VS Code settings
+- [x] Add genericVariableNames setting (extend built-in list)
+- [x] Add loopVariableNames setting (extend i,j,k,n,m)
+- [x] Add coordinateVariableNames setting (extend x,y,z,w)
+- [x] Add genericErrorMessages setting (extend built-in list)
+- [x] Add secretPatterns setting (extend built-in regex patterns)
+- [x] Create DetectorSettings type in shared package
+- [x] Update all detectors to accept DetectorSettings parameter
+- [x] Pass detectorSettings through Analyzer to detectors
+- [x] Create devcontainer configuration
+- [x] Configure Node.js 22 + Bun runtime
+- [x] Add VS Code extensions (Biome, TypeScript, Bun)
+- [x] Configure format-on-save with Biome
+- [x] Update documentation for new settings
+
 ## Phase 4: Question Generation (Weeks 7-8)
 
 - [ ] Create question templates for each pattern type
@@ -223,14 +240,15 @@ last_updated: 2026-01-05
 | Phase 2: Detectors | ✅ Complete | 26 | 26 |
 | Phase 2.5: CLI & Demo | ✅ Complete | 13 | 13 |
 | Phase 3: Git Integration | ✅ Complete | 16 | 15 |
+| Phase 3.5: Config & DX | ✅ Complete | 14 | 14 |
 | Phase 4: Questions | 🟡 Not Started | 14 | 0 |
 | Phase 5: Metrics | 🟡 Not Started | 15 | 0 |
 | Phase 6: Multi-Language | 🟡 Not Started | 16 | 0 |
 | Phase 7: Cloud | 🟡 Not Started | 16 | 0 |
 | Phase 8: CI & Polish | 🟡 Not Started | 16 | 0 |
-| **Total** | | **156** | **78** |
+| **Total** | | **170** | **92** |
 
-**Progress: 50% Complete**
+**Progress: 54% Complete**
 
 ---
 
@@ -271,4 +289,4 @@ bun packages/cli/dist/index.js analyze . --json
 
 ---
 
-*Last Updated: 2026-01-04*
+*Last Updated: 2026-01-06*

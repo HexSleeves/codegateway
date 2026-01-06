@@ -21,7 +21,7 @@ export class CodeQualityDetector extends BaseDetector {
   ];
   readonly languages: SupportedLanguage[] = ['typescript', 'javascript'];
 
-  private project: Project;
+  private readonly project: Project;
 
   constructor() {
     super();
@@ -46,11 +46,13 @@ export class CodeQualityDetector extends BaseDetector {
     });
 
     try {
-      patterns.push(...this.detectMagicNumbers(sourceFile, filePath));
-      patterns.push(...this.detectTodoWithoutContext(sourceFile, filePath, content));
-      patterns.push(...this.detectCommentedOutCode(filePath, content));
-      patterns.push(...this.detectComplexFunctions(sourceFile, filePath));
-      patterns.push(...this.detectPlaceholderImplementations(sourceFile, filePath));
+      patterns.push(
+        ...this.detectMagicNumbers(sourceFile, filePath),
+        ...this.detectTodoWithoutContext(sourceFile, filePath, content),
+        ...this.detectCommentedOutCode(filePath, content),
+        ...this.detectComplexFunctions(sourceFile, filePath),
+        ...this.detectPlaceholderImplementations(sourceFile, filePath),
+      );
     } finally {
       this.project.removeSourceFile(sourceFile);
     }
@@ -246,6 +248,7 @@ export class CodeQualityDetector extends BaseDetector {
 
       if (complexity > complexityThreshold) {
         const name = this.getFunctionName(func);
+        const functionName = name ? ` "${name}"` : '';
 
         patterns.push(
           this.createPattern(
@@ -253,7 +256,7 @@ export class CodeQualityDetector extends BaseDetector {
             filePath,
             func.getStartLineNumber(),
             func.getEndLineNumber(),
-            `Function${name ? ` "${name}"` : ''} has cyclomatic complexity of ${complexity}`,
+            `Function${functionName} has cyclomatic complexity of ${complexity}`,
             `High complexity (>${complexityThreshold}) makes code harder to understand, test, and maintain. ` +
               'Consider breaking it into smaller functions.',
             this.truncateCode(func.getText(), 200),
@@ -342,7 +345,6 @@ export class CodeQualityDetector extends BaseDetector {
           });
 
           if (!hasCode && statements.length === 0) {
-            const name = this.getFunctionName(func);
             // Skip empty arrow functions that might be intentional (e.g., noop callbacks)
             if (func.getKind() === SyntaxKind.ArrowFunction) {
               const parent = func.getParent();
@@ -354,13 +356,16 @@ export class CodeQualityDetector extends BaseDetector {
               }
             }
 
+            const name = this.getFunctionName(func);
+            const functionName = name ? ` "${name}"` : '';
+
             patterns.push(
               this.createPattern(
                 'placeholder_implementation',
                 filePath,
                 func.getStartLineNumber(),
                 func.getEndLineNumber(),
-                `Function${name ? ` "${name}"` : ''} has empty body`,
+                `Function${functionName} has empty body`,
                 'This function does nothing. Either implement it or remove it.',
                 func.getText(),
                 {

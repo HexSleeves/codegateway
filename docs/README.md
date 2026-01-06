@@ -6,7 +6,7 @@ Welcome to the CodeGateway documentation. CodeGateway is an AI code review trust
 
 ### Getting Started
 
-- [Installation Guide](./installation.md) - How to install the VS Code extension
+- [Installation Guide](./installation.md) - How to install the VS Code extension and CLI
 - [Quick Start](./quick-start.md) - Get up and running in 5 minutes
 - [Configuration](./configuration.md) - Customize CodeGateway for your workflow
 
@@ -19,13 +19,7 @@ Welcome to the CodeGateway documentation. CodeGateway is an AI code review trust
 ### Reference
 
 - [Commands](./commands.md) - All available VS Code commands
-- [CLI Reference](./cli.md) - Command-line interface usage
-- [API Reference](./api.md) - For developers extending CodeGateway
-
-### Guides
-
-- [Team Setup](./team-setup.md) - Rolling out CodeGateway to your team
-- [CI/CD Integration](./ci-cd.md) - Using CodeGateway in pipelines
+- [CLI Reference](./cli.md) - Command-line interface usage and CI/CD integration
 - [Troubleshooting](./troubleshooting.md) - Common issues and solutions
 
 ## Quick Links

@@ -24,7 +24,7 @@ export interface StoredCheckpoint {
  */
 export class CheckpointStore {
   private static readonly STORAGE_KEY = 'codegateway.checkpoints';
-  private context: vscode.ExtensionContext;
+  private readonly context: vscode.ExtensionContext;
 
   constructor(context: vscode.ExtensionContext) {
     this.context = context;

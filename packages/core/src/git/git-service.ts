@@ -18,7 +18,7 @@ const execAsync = promisify(exec);
 export class GitService {
   private repoRoot: string | null = null;
 
-  constructor(private workingDir: string) {}
+  constructor(private readonly workingDir: string) {}
 
   /**
    * Check if the working directory is inside a git repository

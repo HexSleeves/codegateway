@@ -172,6 +172,65 @@ Show comprehension checkpoint UI before commit.
 }
 ```
 
+### Detector Customization
+
+These settings allow you to extend the built-in detection patterns with your own custom values.
+
+#### `codegateway.genericVariableNames`
+
+Additional variable names to flag as generic. These are **added** to the built-in list (`data`, `result`, `temp`, `item`, etc.).
+
+```json
+{
+  "codegateway.genericVariableNames": ["info", "input", "output", "params"]
+}
+```
+
+#### `codegateway.loopVariableNames`
+
+Additional single-letter variable names allowed in loop contexts. These are **added** to the built-in list (`i`, `j`, `k`, `n`, `m`).
+
+```json
+{
+  "codegateway.loopVariableNames": ["l", "p", "q"]
+}
+```
+
+#### `codegateway.coordinateVariableNames`
+
+Additional variable names allowed for coordinates/math contexts. These are **added** to the built-in list (`x`, `y`, `z`, `w`).
+
+```json
+{
+  "codegateway.coordinateVariableNames": ["u", "v", "r", "theta"]
+}
+```
+
+#### `codegateway.genericErrorMessages`
+
+Additional error message patterns to flag as generic. These are **added** to the built-in list (`"something went wrong"`, `"an error occurred"`, etc.).
+
+```json
+{
+  "codegateway.genericErrorMessages": ["operation failed", "try again later", "contact support"]
+}
+```
+
+#### `codegateway.secretPatterns`
+
+Additional regex patterns to detect hardcoded secrets. These are **added** to the built-in patterns for API keys, passwords, tokens, etc.
+
+```json
+{
+  "codegateway.secretPatterns": [
+    "my_service_key\\s*=\\s*[\"'][^\"\']+[\"\']",
+    "CUSTOM_TOKEN_[A-Z0-9]+"
+  ]
+}
+```
+
+> **Note:** Patterns are JavaScript regular expressions. Remember to double-escape backslashes in JSON.
+
 ## Configuration Profiles
 
 ### Strict Mode (Teams/Production)
@@ -233,6 +292,30 @@ Only security-related patterns:
   ],
   "codegateway.minSeverity": "warning",
   "codegateway.blockOnCritical": true
+}
+```
+
+### Domain-Specific (Graphics/Math)
+
+Allow common graphics/math variable names:
+
+```json
+{
+  "codegateway.coordinateVariableNames": ["u", "v", "r", "theta", "phi"],
+  "codegateway.loopVariableNames": ["t"]
+}
+```
+
+### Custom Secret Detection
+
+Add company-specific secret patterns:
+
+```json
+{
+  "codegateway.secretPatterns": [
+    "ACME_API_KEY_[A-Za-z0-9]+",
+    "internal_token\\s*[:=]\\s*[\"'][^\"\']+[\"\']"
+  ]
 }
 ```
 

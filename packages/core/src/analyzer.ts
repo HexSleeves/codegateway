@@ -197,7 +197,7 @@ export class Analyzer {
     if (
       config.excludeFiles.some((pattern) => {
         // Simple wildcard matching
-        const regex = new RegExp(`^${pattern.replace(/\./g, '\\.').replace(/\*/g, '.*')}$`);
+        const regex = new RegExp(`^${pattern.replaceAll('.', '\\.').replaceAll('*', '.*')}$`);
         return regex.test(fileName);
       })
     ) {

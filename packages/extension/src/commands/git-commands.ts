@@ -251,11 +251,11 @@ async function triggerCheckpoint(context: vscode.ExtensionContext): Promise<void
         `CodeGateway: Checkpoint passed! ${checkpointResult.acknowledgedPatterns?.length ?? 0} patterns acknowledged.`,
       );
       break;
-    case 'skipped':
-      vscode.window.showWarningMessage(
-        `CodeGateway: Checkpoint skipped${checkpointResult.skipReason ? `: ${checkpointResult.skipReason}` : ''}`,
-      );
+    case 'skipped': {
+      const skipReason = checkpointResult.skipReason ? `: ${checkpointResult.skipReason}` : '';
+      vscode.window.showWarningMessage(`CodeGateway: Checkpoint skipped${skipReason}`);
       break;
+    }
     case 'failed':
       vscode.window.showErrorMessage('CodeGateway: Checkpoint cancelled');
       break;

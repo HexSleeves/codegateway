@@ -29,10 +29,10 @@ export function matchesGlob(filePath: string, patterns: string[]): boolean {
  */
 function globToRegex(glob: string): RegExp {
   const escaped = glob
-    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
-    .replace(/\*\*/g, '<<<DOUBLESTAR>>>')
-    .replace(/\*/g, '[^/]*')
-    .replace(/<<<DOUBLESTAR>>>/g, '.*');
+    .replaceAll(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replaceAll('**', '<<<DOUBLESTAR>>>')
+    .replaceAll('*', '[^/]*')
+    .replaceAll('<<<DOUBLESTAR>>>', '.*');
   return new RegExp(`^${escaped}$`);
 }
 

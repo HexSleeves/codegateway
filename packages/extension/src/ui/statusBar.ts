@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
  * Manages the status bar item showing pattern counts
  */
 export class StatusBarManager {
-  private statusBarItem: vscode.StatusBarItem;
+  private readonly statusBarItem: vscode.StatusBarItem;
 
   constructor() {
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);

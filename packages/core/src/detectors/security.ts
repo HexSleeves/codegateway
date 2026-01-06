@@ -21,7 +21,7 @@ export class SecurityDetector extends BaseDetector {
   ];
   readonly languages: SupportedLanguage[] = ['typescript', 'javascript'];
 
-  private project: Project;
+  private readonly project: Project;
   private secretPatterns!: RegExp[];
 
   constructor() {
@@ -74,10 +74,12 @@ export class SecurityDetector extends BaseDetector {
     });
 
     try {
-      patterns.push(...this.detectHardcodedSecrets(sourceFile, filePath, content));
-      patterns.push(...this.detectSqlConcatenation(sourceFile, filePath));
-      patterns.push(...this.detectUnsafeEval(sourceFile, filePath));
-      patterns.push(...this.detectInsecureRandom(sourceFile, filePath));
+      patterns.push(
+        ...this.detectHardcodedSecrets(sourceFile, filePath, content),
+        ...this.detectSqlConcatenation(sourceFile, filePath),
+        ...this.detectUnsafeEval(sourceFile, filePath),
+        ...this.detectInsecureRandom(sourceFile, filePath),
+      );
     } finally {
       this.project.removeSourceFile(sourceFile);
     }
@@ -405,7 +407,7 @@ export class SecurityDetector extends BaseDetector {
 
   private maskSecret(line: string, secret: string): string {
     // Find the value part and mask it
-    const valueMatch = secret.match(/['"]([^'"]+)['"]/)?.[1];
+    const valueMatch = new RegExp(/['"]([^'"]+)['"]/).exec(secret)?.[1];
     if (valueMatch && valueMatch.length > 4) {
       const masked = `${valueMatch.slice(0, 4)}***MASKED***`;
       return line.replace(valueMatch, masked);

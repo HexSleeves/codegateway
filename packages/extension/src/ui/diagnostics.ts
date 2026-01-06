@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
  * Manages VS Code diagnostics (Problems panel) for CodeGateway
  */
 export class DiagnosticsManager {
-  private diagnosticCollection: vscode.DiagnosticCollection;
+  private readonly diagnosticCollection: vscode.DiagnosticCollection;
 
   constructor() {
     this.diagnosticCollection = vscode.languages.createDiagnosticCollection('codegateway');

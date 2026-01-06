@@ -7,12 +7,12 @@ import type { DecorationManager, DiagnosticsManager, StatusBarManager } from '..
  * Manages file analysis and result presentation
  */
 export class FileAnalyzer {
-  private analyzer: Analyzer;
-  private diagnosticsManager: DiagnosticsManager;
-  private decorationManager: DecorationManager;
-  private statusBarManager: StatusBarManager;
-  private analysisCache: Map<string, AnalysisResult> = new Map();
-  private debounceTimers: Map<string, NodeJS.Timeout> = new Map();
+  private readonly analyzer: Analyzer;
+  private readonly diagnosticsManager: DiagnosticsManager;
+  private readonly decorationManager: DecorationManager;
+  private readonly statusBarManager: StatusBarManager;
+  private readonly analysisCache: Map<string, AnalysisResult> = new Map();
+  private readonly debounceTimers: Map<string, NodeJS.Timeout> = new Map();
 
   constructor(
     diagnosticsManager: DiagnosticsManager,

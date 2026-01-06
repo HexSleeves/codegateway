@@ -36,6 +36,23 @@ code --install-extension codegateway-1.0.0.vsix
 
 For contributors or custom builds:
 
+#### Using Dev Container (Recommended)
+
+1. Clone the repository and open in VS Code:
+   ```bash
+   git clone https://github.com/codegateway/codegateway.git
+   code codegateway
+   ```
+2. When prompted, click "Reopen in Container"
+3. Wait for the container to build (includes Node.js 22, Bun, and all dependencies)
+4. Build and package:
+   ```bash
+   bun run build
+   cd packages/extension && bun run package
+   ```
+
+#### Manual Setup
+
 ```bash
 # Clone the repository
 git clone https://github.com/codegateway/codegateway.git
