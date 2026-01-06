@@ -117,16 +117,19 @@ export class DecorationManager {
   /**
    * Get the range for a pattern, handling missing column info
    */
-  private getPatternRange(editor: vscode.TextEditor, pattern: DetectedPattern): vscode.Range | null {
+  private getPatternRange(
+    editor: vscode.TextEditor,
+    pattern: DetectedPattern,
+  ): vscode.Range | null {
     const lineIndex = pattern.startLine - 1;
-    
+
     // Validate line index
     if (lineIndex < 0 || lineIndex >= editor.document.lineCount) {
       return null;
     }
 
     const line = editor.document.lineAt(lineIndex);
-    
+
     // If we have explicit column info, use it
     if (pattern.startColumn !== undefined && pattern.endColumn !== undefined) {
       return new vscode.Range(
@@ -136,11 +139,11 @@ export class DecorationManager {
     }
 
     // Try to find the code snippet in the line to get precise positioning
-    if (pattern.codeSnippet) {
+    if (pattern.codeSnippet !== undefined && pattern.codeSnippet !== null) {
       // Get first line of snippet (in case it's multiline)
-      const snippetFirstLine = pattern.codeSnippet.split('\n')[0].trim();
+      const snippetFirstLine = pattern.codeSnippet.split('\n')[0]!.trim();
       const lineText = line.text;
-      
+
       // Try to find the snippet in the line
       const snippetIndex = lineText.indexOf(snippetFirstLine);
       if (snippetIndex !== -1) {
@@ -154,7 +157,7 @@ export class DecorationManager {
     // Fallback: use the non-whitespace portion of the line
     const firstNonWhitespace = line.firstNonWhitespaceCharacterIndex;
     const lastNonWhitespace = line.text.trimEnd().length;
-    
+
     return new vscode.Range(
       new vscode.Position(lineIndex, firstNonWhitespace),
       new vscode.Position(pattern.endLine - 1, lastNonWhitespace),

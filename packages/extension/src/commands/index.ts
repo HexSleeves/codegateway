@@ -1,15 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
 import type { FileAnalyzer } from '../analysis/fileAnalyzer';
-import {
-  getConfigFilePath,
-  invalidateConfigCache,
-} from '../core/config';
-import {
-  createDefaultConfigFile,
-  findConfigFile,
-  CONFIG_FILE_NAMES,
-} from '@codegateway/shared';
+import { getConfigFilePath, invalidateConfigCache } from '../core/config';
+import { createDefaultConfigFile, findConfigFile, CONFIG_FILE_NAMES } from '@codegateway/shared';
 
 export { registerGitCommands } from './git-commands.js';
 
@@ -122,7 +115,7 @@ export function registerCommands(
           'Open It',
           'Create New Anyway',
         );
-        
+
         if (action === 'Open It') {
           const doc = await vscode.workspace.openTextDocument(existingConfig);
           await vscode.window.showTextDocument(doc);
@@ -134,7 +127,7 @@ export function registerCommands(
 
       const configPath = createDefaultConfigFile(workspaceFolder.uri.fsPath);
       invalidateConfigCache();
-      
+
       const doc = await vscode.workspace.openTextDocument(configPath);
       await vscode.window.showTextDocument(doc);
       vscode.window.showInformationMessage(`Created: ${CONFIG_FILE_NAMES[0]}`);
@@ -145,13 +138,13 @@ export function registerCommands(
   context.subscriptions.push(
     vscode.commands.registerCommand('codegateway.openConfig', async () => {
       const configPath = getConfigFilePath();
-      
+
       if (!configPath) {
         const action = await vscode.window.showInformationMessage(
           'No config file found. Create one?',
           'Create Config',
         );
-        
+
         if (action === 'Create Config') {
           await vscode.commands.executeCommand('codegateway.initConfig');
         }

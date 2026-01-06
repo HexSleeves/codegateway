@@ -1,6 +1,6 @@
 import { type AnalysisResult, Analyzer } from '@codegateway/core';
 import * as vscode from 'vscode';
-import { getResolvedConfig, getDebounceMs, isInlineHintsEnabled } from '../core/config';
+import { getDebounceMs, getResolvedConfig, isInlineHintsEnabled } from '../core/config';
 import type { DecorationManager, DiagnosticsManager, StatusBarManager } from '../ui';
 
 /**

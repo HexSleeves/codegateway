@@ -5,7 +5,8 @@ import type {
   SupportedLanguage,
 } from '@codegateway/shared';
 import { DEFAULT_SECRET_PATTERNS } from '@codegateway/shared';
-import { Project, type SourceFile, SyntaxKind } from 'ts-morph';
+import { type Project, type SourceFile, SyntaxKind } from 'ts-morph';
+import { createProject, truncateCode } from './utils.js';
 import { BaseDetector } from './base.js';
 
 /**
@@ -26,13 +27,7 @@ export class SecurityDetector extends BaseDetector {
 
   constructor() {
     super();
-    this.project = new Project({
-      useInMemoryFileSystem: true,
-      compilerOptions: {
-        allowJs: true,
-        checkJs: false,
-      },
-    });
+    this.project = createProject();
     this.initializeSettings();
   }
 
@@ -213,7 +208,7 @@ export class SecurityDetector extends BaseDetector {
               'SQL query with string interpolation - potential SQL injection',
               'Building SQL queries with string interpolation can lead to SQL injection vulnerabilities. ' +
                 'Use parameterized queries instead.',
-              this.truncateCode(text, 150),
+              truncateCode(text, 150),
               {
                 severity: 'critical',
                 suggestion: 'Use parameterized queries or an ORM with proper escaping',
@@ -245,7 +240,7 @@ export class SecurityDetector extends BaseDetector {
               expr.getEndLineNumber(),
               'SQL query built with string concatenation - potential SQL injection',
               'Building SQL queries with string concatenation can lead to SQL injection vulnerabilities.',
-              this.truncateCode(text, 150),
+              truncateCode(text, 150),
               {
                 severity: 'critical',
                 suggestion: 'Use parameterized queries or an ORM',
@@ -385,7 +380,7 @@ export class SecurityDetector extends BaseDetector {
               'Math.random() used in potentially security-sensitive context',
               'Math.random() is not cryptographically secure. ' +
                 'For security purposes, use crypto.randomBytes() or crypto.getRandomValues().',
-              this.truncateCode(context, 100),
+              truncateCode(context, 100),
               {
                 severity: 'warning',
                 suggestion:
@@ -413,10 +408,5 @@ export class SecurityDetector extends BaseDetector {
       return line.replace(valueMatch, masked);
     }
     return line;
-  }
-
-  private truncateCode(code: string, maxLength: number): string {
-    if (code.length <= maxLength) return code;
-    return `${code.slice(0, maxLength - 3)}...`;
   }
 }

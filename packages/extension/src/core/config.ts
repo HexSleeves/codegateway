@@ -1,10 +1,5 @@
-import type { ExtensionConfig, PatternType, ResolvedConfig } from '@codegateway/shared';
-import {
-  loadConfig,
-  findConfigFile,
-  toDetectorSettings,
-  DEFAULT_CONFIG,
-} from '@codegateway/shared';
+import type { PatternType, ResolvedConfig } from '@codegateway/shared';
+import { findConfigFile, loadConfig } from '@codegateway/shared';
 import * as vscode from 'vscode';
 
 // Cache for resolved config
@@ -17,7 +12,7 @@ let cachedConfigPath: string | null = null;
 function getWorkspaceRoot(): string {
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (workspaceFolders && workspaceFolders.length > 0) {
-    return workspaceFolders[0].uri.fsPath;
+    return workspaceFolders[0]!.uri.fsPath;
   }
   return process.cwd();
 }
@@ -30,11 +25,11 @@ export function getResolvedConfig(): ResolvedConfig {
   if (cachedConfig) {
     return cachedConfig;
   }
-  
+
   const workspaceRoot = getWorkspaceRoot();
   cachedConfigPath = findConfigFile(workspaceRoot);
   cachedConfig = loadConfig(workspaceRoot);
-  
+
   return cachedConfig;
 }
 
@@ -54,31 +49,6 @@ export function getConfigFilePath(): string | null {
     getResolvedConfig(); // Populate cache
   }
   return cachedConfigPath;
-}
-
-/**
- * Get extension configuration in the old ExtensionConfig format.
- * This is for backward compatibility with existing code.
- */
-export function getConfig(): ExtensionConfig {
-  const resolved = getResolvedConfig();
-  
-  return {
-    enabledPatterns: resolved.enabledPatterns,
-    customPatterns: [],
-    severityOverrides: resolved.severityOverrides,
-    excludePaths: resolved.exclude,
-    excludeFiles: [],
-    detectorSettings: toDetectorSettings(resolved),
-    checkpointTrigger: 'pre_commit',
-    minSeverityForCheckpoint: resolved.minSeverity,
-    allowSkip: true,
-    skipRequiresReason: false,
-    cloudSyncEnabled: false,
-    showInlineHints: resolved.showInlineHints,
-    showStatusBarSummary: true,
-    notificationLevel: 'warnings',
-  };
 }
 
 /**

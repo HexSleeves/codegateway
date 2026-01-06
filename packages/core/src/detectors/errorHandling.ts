@@ -5,7 +5,8 @@ import type {
   SupportedLanguage,
 } from '@codegateway/shared';
 import { DEFAULT_GENERIC_ERROR_MESSAGES } from '@codegateway/shared';
-import { type Block, type Node, Project, type SourceFile, SyntaxKind } from 'ts-morph';
+import { type Block, type Node, type Project, type SourceFile, SyntaxKind } from 'ts-morph';
+import { createProject, getFunctionName, isDescendantOf, truncateCode } from './utils.js';
 import { BaseDetector } from './base.js';
 
 /**
@@ -27,13 +28,7 @@ export class ErrorHandlingDetector extends BaseDetector {
 
   constructor() {
     super();
-    this.project = new Project({
-      useInMemoryFileSystem: true,
-      compilerOptions: {
-        allowJs: true,
-        checkJs: false,
-      },
-    });
+    this.project = createProject();
     this.initializeSettings();
   }
 
@@ -165,7 +160,7 @@ export class ErrorHandlingDetector extends BaseDetector {
             'try block without catch or finally - syntax error',
             'A try block must have either a catch clause, a finally clause, or both. ' +
               'This code will fail to parse at runtime.',
-            this.truncateCode(tryStmt.getText(), 200),
+            truncateCode(tryStmt.getText(), 200),
             {
               severity: 'critical',
               suggestion: 'Add a catch clause to handle errors, or a finally clause for cleanup',
@@ -195,7 +190,7 @@ export class ErrorHandlingDetector extends BaseDetector {
               'try...finally without catch - errors will propagate',
               'This try block has a finally clause but no catch. Errors will propagate to the caller. ' +
                 'This is valid for cleanup patterns, but consider if errors should be handled here.',
-              this.truncateCode(tryStmt.getText(), 200),
+              truncateCode(tryStmt.getText(), 200),
               {
                 severity: 'info',
                 suggestion:
@@ -241,7 +236,7 @@ export class ErrorHandlingDetector extends BaseDetector {
         // Check if this await is inside a try block
         for (const tryStmt of tryStatements) {
           const tryBlock = tryStmt.getTryBlock();
-          if (this.isDescendantOf(awaitExpr, tryBlock)) {
+          if (isDescendantOf(awaitExpr, tryBlock)) {
             return false; // Protected
           }
         }
@@ -249,7 +244,7 @@ export class ErrorHandlingDetector extends BaseDetector {
       });
 
       if (unprotectedAwaits.length > 0) {
-        const funcName = this.getFunctionName(func);
+        const funcName = getFunctionName(func);
         const functionName = funcName ? ` "${funcName}"` : '';
 
         patterns.push(
@@ -261,7 +256,7 @@ export class ErrorHandlingDetector extends BaseDetector {
             `Async function${functionName} has unhandled promise rejections`,
             `This async function has ${unprotectedAwaits.length} await expression(s) without error handling. ` +
               'Unhandled rejections can crash your application or cause silent failures.',
-            this.truncateCode(func.getText(), 300),
+            truncateCode(func.getText(), 300),
             {
               severity: 'warning',
               suggestion: 'Wrap await calls in try-catch or add .catch() handler',
@@ -329,30 +324,6 @@ export class ErrorHandlingDetector extends BaseDetector {
     return !hasCode;
   }
 
-  private isDescendantOf(node: Node, ancestor: Node): boolean {
-    let current: Node | undefined = node;
-    while (current) {
-      if (current === ancestor) return true;
-      current = current.getParent();
-    }
-    return false;
-  }
-
-  private getFunctionName(func: Node): string | undefined {
-    if (func.isKind(SyntaxKind.FunctionDeclaration)) {
-      return func.asKind(SyntaxKind.FunctionDeclaration)?.getName();
-    }
-    if (func.isKind(SyntaxKind.MethodDeclaration)) {
-      return func.asKind(SyntaxKind.MethodDeclaration)?.getName();
-    }
-    // Arrow functions don't have names, try to get from variable declaration
-    const varDecl = func.getFirstAncestorByKind(SyntaxKind.VariableDeclaration);
-    if (varDecl) {
-      return varDecl.getName();
-    }
-    return undefined;
-  }
-
   private isInErrorContext(node: Node): boolean {
     // Check if inside throw statement
     if (node.getFirstAncestorByKind(SyntaxKind.ThrowStatement)) {
@@ -384,10 +355,5 @@ export class ErrorHandlingDetector extends BaseDetector {
     }
 
     return false;
-  }
-
-  private truncateCode(code: string, maxLength: number): string {
-    if (code.length <= maxLength) return code;
-    return `${code.slice(0, maxLength - 3)}...`;
   }
 }

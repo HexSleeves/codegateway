@@ -1,13 +1,12 @@
+import { CONFIG_FILE_NAMES } from '@codegateway/shared';
 import * as vscode from 'vscode';
 import { FileAnalyzer } from './analysis/fileAnalyzer';
 import { registerCommands, registerGitCommands } from './commands';
 import {
+  invalidateConfigCache,
   isAnalyzeOnOpenEnabled,
   isAnalyzeOnSaveEnabled,
-  invalidateConfigCache,
-  getConfigFilePath,
 } from './core/config';
-import { CONFIG_FILE_NAMES } from '@codegateway/shared';
 import { DecorationManager, DiagnosticsManager, StatusBarManager } from './ui';
 
 let fileAnalyzer: FileAnalyzer;
@@ -57,22 +56,20 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
   const configWatcher = vscode.workspace.createFileSystemWatcher(
     `**/{${CONFIG_FILE_NAMES.join(',')}}`,
   );
-  
+
   const onConfigChange = () => {
     invalidateConfigCache();
     vscode.window.showInformationMessage('CodeGateway: Config reloaded');
     analyzeOpenDocuments();
   };
-  
+
   context.subscriptions.push(
     configWatcher,
     configWatcher.onDidChange(onConfigChange),
     configWatcher.onDidCreate(onConfigChange),
     configWatcher.onDidDelete(onConfigChange),
-  );
 
-  // Analyze on document open
-  context.subscriptions.push(
+    // Analyze on document open
     vscode.workspace.onDidOpenTextDocument((document) => {
       if (isAnalyzeOnOpenEnabled() && isSupportedDocument(document)) {
         fileAnalyzer.analyzeDocument(document);
@@ -85,7 +82,7 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
         analyzeOpenDocuments();
         return;
       }
-      
+
       if (isAnalyzeOnSaveEnabled() && isSupportedDocument(document)) {
         fileAnalyzer.analyzeDocumentNow(document);
       }
@@ -129,6 +126,6 @@ function isSupportedDocument(document: vscode.TextDocument): boolean {
  * Check if a document is a CodeGateway config file
  */
 function isConfigFile(document: vscode.TextDocument): boolean {
-  const fileName = document.uri.fsPath.split(/[\/\\]/).pop() ?? '';
+  const fileName = document.uri.fsPath.split(/[/\\]/).pop() ?? '';
   return CONFIG_FILE_NAMES.includes(fileName);
 }

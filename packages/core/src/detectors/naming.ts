@@ -9,7 +9,8 @@ import {
   DEFAULT_GENERIC_VARIABLE_NAMES,
   DEFAULT_LOOP_VARIABLE_NAMES,
 } from '@codegateway/shared';
-import { type Node, Project, type SourceFile, SyntaxKind } from 'ts-morph';
+import { type Node, type Project, type SourceFile, SyntaxKind } from 'ts-morph';
+import { createProject } from './utils.js';
 import { BaseDetector } from './base.js';
 
 /**
@@ -29,14 +30,7 @@ export class NamingPatternDetector extends BaseDetector {
 
   constructor() {
     super();
-    this.project = new Project({
-      useInMemoryFileSystem: true,
-      compilerOptions: {
-        allowJs: true,
-        checkJs: false,
-      },
-    });
-    // Initialize with defaults
+    this.project = createProject();
     this.initializeSets();
   }
 

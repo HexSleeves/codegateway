@@ -4,7 +4,8 @@ import type {
   PatternType,
   SupportedLanguage,
 } from '@codegateway/shared';
-import { type Node, Project, type SourceFile, SyntaxKind } from 'ts-morph';
+import { type Node, type Project, type SourceFile, SyntaxKind } from 'ts-morph';
+import { createProject, getFunctionName, truncateCode } from './utils.js';
 import { BaseDetector } from './base.js';
 
 /**
@@ -25,13 +26,7 @@ export class CodeQualityDetector extends BaseDetector {
 
   constructor() {
     super();
-    this.project = new Project({
-      useInMemoryFileSystem: true,
-      compilerOptions: {
-        allowJs: true,
-        checkJs: false,
-      },
-    });
+    this.project = createProject();
   }
 
   async analyze(
@@ -247,7 +242,7 @@ export class CodeQualityDetector extends BaseDetector {
       const complexity = this.calculateCyclomaticComplexity(func);
 
       if (complexity > complexityThreshold) {
-        const name = this.getFunctionName(func);
+        const name = getFunctionName(func);
         const functionName = name ? ` "${name}"` : '';
 
         patterns.push(
@@ -259,7 +254,7 @@ export class CodeQualityDetector extends BaseDetector {
             `Function${functionName} has cyclomatic complexity of ${complexity}`,
             `High complexity (>${complexityThreshold}) makes code harder to understand, test, and maintain. ` +
               'Consider breaking it into smaller functions.',
-            this.truncateCode(func.getText(), 200),
+            truncateCode(func.getText(), 200),
             {
               severity: complexity > 20 ? 'critical' : 'warning',
               suggestion: 'Extract logical branches into separate functions with descriptive names',
@@ -302,7 +297,7 @@ export class CodeQualityDetector extends BaseDetector {
             'Function throws "not implemented" - placeholder code',
             'This function has a placeholder implementation that will fail at runtime. ' +
               "Complete the implementation or remove it if it's not needed.",
-            this.truncateCode(func.getText(), 200),
+            truncateCode(func.getText(), 200),
             {
               severity: 'critical',
               suggestion: 'Implement the function or remove it',
@@ -324,7 +319,7 @@ export class CodeQualityDetector extends BaseDetector {
             'Function has TODO indicating incomplete implementation',
             'This function contains a TODO suggesting it needs more work. ' +
               'Review and complete before committing.',
-            this.truncateCode(func.getText(), 200),
+            truncateCode(func.getText(), 200),
             {
               severity: 'warning',
               suggestion: 'Complete the TODO or add a detailed explanation of what remains',
@@ -356,7 +351,7 @@ export class CodeQualityDetector extends BaseDetector {
               }
             }
 
-            const name = this.getFunctionName(func);
+            const name = getFunctionName(func);
             const functionName = name ? ` "${name}"` : '';
 
             patterns.push(
@@ -414,24 +409,5 @@ export class CodeQualityDetector extends BaseDetector {
     node.forEachDescendant(countNode);
 
     return complexity;
-  }
-
-  private getFunctionName(func: Node): string | undefined {
-    if (func.isKind(SyntaxKind.FunctionDeclaration)) {
-      return func.asKind(SyntaxKind.FunctionDeclaration)?.getName();
-    }
-    if (func.isKind(SyntaxKind.MethodDeclaration)) {
-      return func.asKind(SyntaxKind.MethodDeclaration)?.getName();
-    }
-    const varDecl = func.getFirstAncestorByKind(SyntaxKind.VariableDeclaration);
-    if (varDecl) {
-      return varDecl.getName();
-    }
-    return undefined;
-  }
-
-  private truncateCode(code: string, maxLength: number): string {
-    if (code.length <= maxLength) return code;
-    return `${code.slice(0, maxLength - 3)}...`;
   }
 }
