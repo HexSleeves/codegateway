@@ -2,7 +2,14 @@
 
 import * as fs from 'node:fs';
 import { Analyzer } from '@codegateway/core';
-import type { DetectedPattern, Severity } from '@codegateway/shared';
+import {
+  createDefaultConfigFile,
+  type DetectedPattern,
+  findConfigFile,
+  loadConfig,
+  matchesGlob,
+  type Severity,
+} from '@codegateway/shared';
 import { Command } from 'commander';
 import { glob } from 'glob';
 
@@ -17,11 +24,27 @@ program
   .command('analyze')
   .description('Analyze files for AI code patterns')
   .argument('[paths...]', 'Files or directories to analyze', ['.'])
-  .option('-s, --severity <level>', 'Minimum severity (info, warning, critical)', 'info')
+  .option('-s, --severity <level>', 'Minimum severity (info, warning, critical)')
   .option('--json', 'Output as JSON')
   .option('--fail-on <level>', 'Exit with error if patterns at this severity found')
+  .option('-c, --config <path>', 'Path to config file')
   .action(
-    async (paths: string[], options: { severity: Severity; json: boolean; failOn?: Severity }) => {
+    async (
+      paths: string[],
+      options: { severity?: Severity; json: boolean; failOn?: Severity; config?: string },
+    ) => {
+      // Load configuration
+      const configPath = options.config ?? findConfigFile(process.cwd());
+      const config = loadConfig(process.cwd());
+
+      if (configPath && !options.json) {
+        console.error(`Using config: ${configPath}`);
+      }
+
+      // CLI options override config file
+      const minSeverity = options.severity ?? config.minSeverity;
+      const excludePatterns = config.exclude;
+
       const analyzer = new Analyzer();
       const files: string[] = [];
 
@@ -30,7 +53,7 @@ program
         const stat = fs.statSync(p, { throwIfNoEntry: false });
         if (stat?.isDirectory()) {
           const found = await glob(`${p}/**/*.{ts,tsx,js,jsx}`, {
-            ignore: ['**/node_modules/**', '**/dist/**'],
+            ignore: excludePatterns,
           });
           files.push(...found);
         } else if (stat?.isFile()) {
@@ -38,19 +61,26 @@ program
         }
       }
 
-      if (files.length === 0) {
+      // Filter out excluded files
+      const filteredFiles = files.filter((f) => !matchesGlob(f, excludePatterns));
+
+      if (filteredFiles.length === 0) {
         console.log('No files found to analyze');
         process.exit(0);
       }
 
-      console.error(`Analyzing ${files.length} file(s)...\n`);
+      if (!options.json) {
+        console.error(`Analyzing ${filteredFiles.length} file(s)...\n`);
+      }
 
       const allPatterns: DetectedPattern[] = [];
 
-      for (const file of files) {
+      for (const file of filteredFiles) {
         const content = fs.readFileSync(file, 'utf-8');
         const result = await analyzer.analyzeFile(content, file, {
-          minSeverity: options.severity,
+          minSeverity,
+          patternTypes: config.enabledPatterns,
+          config,
         });
         allPatterns.push(...result.patterns);
       }
@@ -112,5 +142,22 @@ program
       }
     },
   );
+
+program
+  .command('init')
+  .description('Create a codegateway.config.json file')
+  .option('-f, --force', 'Overwrite existing config file')
+  .action((options: { force?: boolean }) => {
+    const existingConfig = findConfigFile(process.cwd());
+
+    if (existingConfig && !options.force) {
+      console.error(`Config file already exists: ${existingConfig}`);
+      console.error('Use --force to overwrite.');
+      process.exit(1);
+    }
+
+    const configPath = createDefaultConfigFile(process.cwd());
+    console.log(`Created config file: ${configPath}`);
+  });
 
 program.parse();

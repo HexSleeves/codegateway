@@ -193,45 +193,132 @@ export interface CustomPatternDefinition {
 }
 
 /**
- * Configurable detector settings.
- * These allow users to extend or customize the built-in detection patterns.
+ * CodeGateway configuration file schema.
+ * This is the structure of codegateway.config.json or .codegaterc.json
+ */
+export interface CodeGatewayConfig {
+  // ============================================
+  // PATTERN DETECTION
+  // ============================================
+  
+  /** Pattern types to detect. If not specified, all patterns are enabled. */
+  enabledPatterns?: PatternType[];
+  
+  /** Minimum severity level to report: 'info', 'warning', or 'critical' */
+  minSeverity?: Severity;
+  
+  /** Override severity for specific patterns */
+  severityOverrides?: Partial<Record<PatternType, Severity>>;
+  
+  /** Glob patterns for paths to exclude from analysis */
+  exclude?: string[];
+
+  // ============================================
+  // DETECTOR CUSTOMIZATION
+  // ============================================
+  
+  /** Additional variable names to flag as generic (added to built-in list) */
+  genericVariableNames?: string[];
+  
+  /** Additional single-letter variable names allowed in loops (added to i,j,k,n,m) */
+  loopVariableNames?: string[];
+  
+  /** Additional variable names allowed for coordinates/math (added to x,y,z,w) */
+  coordinateVariableNames?: string[];
+  
+  /** Additional error message patterns to flag as generic */
+  genericErrorMessages?: string[];
+  
+  /** Additional regex patterns to detect hardcoded secrets */
+  secretPatterns?: string[];
+
+  // ============================================
+  // GIT INTEGRATION
+  // ============================================
+  
+  /** Block git commit when critical issues are found */
+  blockOnCritical?: boolean;
+  
+  /** Block git commit when warnings are found */
+  blockOnWarning?: boolean;
+  
+  /** Show comprehension checkpoint before commit */
+  showCheckpoint?: boolean;
+
+  // ============================================
+  // UI SETTINGS (VS Code only)
+  // ============================================
+  
+  /** Show inline decorations (wavy underlines) */
+  showInlineHints?: boolean;
+  
+  /** Analysis debounce delay in milliseconds */
+  debounceMs?: number;
+  
+  /** Analyze files when opened */
+  analyzeOnOpen?: boolean;
+  
+  /** Analyze files when saved */
+  analyzeOnSave?: boolean;
+}
+
+/**
+ * Resolved configuration with all defaults applied.
+ * This is what the analyzer and detectors actually use.
+ */
+export interface ResolvedConfig {
+  enabledPatterns: PatternType[];
+  minSeverity: Severity;
+  severityOverrides: Partial<Record<PatternType, Severity>>;
+  exclude: string[];
+  
+  // Detector settings
+  genericVariableNames: string[];
+  loopVariableNames: string[];
+  coordinateVariableNames: string[];
+  genericErrorMessages: string[];
+  secretPatterns: string[];
+  
+  // Git settings
+  blockOnCritical: boolean;
+  blockOnWarning: boolean;
+  showCheckpoint: boolean;
+  
+  // UI settings
+  showInlineHints: boolean;
+  debounceMs: number;
+  analyzeOnOpen: boolean;
+  analyzeOnSave: boolean;
+}
+
+/**
+ * @deprecated Use CodeGatewayConfig instead. Kept for backward compatibility.
  */
 export interface DetectorSettings {
-  /** Additional variable names to flag as generic (merged with built-in list) */
   genericVariableNames?: string[];
-  /** Additional single-letter variable names allowed in loops (merged with built-in i,j,k,n,m) */
   loopVariableNames?: string[];
-  /** Additional variable names allowed for coordinates/math (merged with built-in x,y,z,w) */
   coordinateVariableNames?: string[];
-  /** Additional error message patterns to flag as generic (merged with built-in list) */
   genericErrorMessages?: string[];
-  /** Additional regex patterns (as strings) to detect hardcoded secrets (merged with built-in list) */
   secretPatterns?: string[];
 }
 
+/**
+ * @deprecated Use CodeGatewayConfig instead. Kept for backward compatibility.
+ */
 export interface ExtensionConfig {
-  // Detection settings
   enabledPatterns: PatternType[];
   customPatterns: CustomPatternDefinition[];
   severityOverrides: Partial<Record<PatternType, Severity>>;
   excludePaths: string[];
   excludeFiles: string[];
-
-  // Detector-specific settings
   detectorSettings?: DetectorSettings;
-
-  // Checkpoint settings
   checkpointTrigger: 'pre_commit' | 'pre_push' | 'manual';
   minSeverityForCheckpoint: Severity;
   allowSkip: boolean;
   skipRequiresReason: boolean;
-
-  // Cloud sync (optional)
   cloudSyncEnabled: boolean;
   teamId?: string;
   apiKey?: string;
-
-  // UI preferences
   showInlineHints: boolean;
   showStatusBarSummary: boolean;
   notificationLevel: 'all' | 'warnings' | 'critical' | 'none';

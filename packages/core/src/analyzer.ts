@@ -1,7 +1,8 @@
 import type {
   DetectedPattern,
-  ExtensionConfig,
+  DetectorSettings,
   PatternType,
+  ResolvedConfig,
   Severity,
   SupportedLanguage,
 } from '@codegateway/shared';
@@ -11,6 +12,7 @@ import {
   detectLanguage,
   matchesGlob,
   meetsSeverityThreshold,
+  toDetectorSettings,
 } from '@codegateway/shared';
 import {
   CodeQualityDetector,
@@ -22,7 +24,7 @@ import {
 
 export interface AnalyzerOptions {
   /** Override default configuration */
-  config?: Partial<ExtensionConfig>;
+  config?: Partial<ResolvedConfig>;
   /** Only analyze specific pattern types */
   patternTypes?: PatternType[];
   /** Minimum severity to report */
@@ -42,9 +44,9 @@ export interface AnalysisResult {
  */
 export class Analyzer {
   private detectors: Detector[] = [];
-  private config: ExtensionConfig;
+  private config: ResolvedConfig;
 
-  constructor(config?: Partial<ExtensionConfig>) {
+  constructor(config?: Partial<ResolvedConfig>) {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.initializeDetectors();
   }
@@ -92,7 +94,7 @@ export class Analyzer {
     );
 
     // Run all detectors in parallel, passing detector settings
-    const detectorSettings = mergedConfig.detectorSettings;
+    const detectorSettings = toDetectorSettings(mergedConfig);
     const detectorResults = await Promise.all(
       applicableDetectors.map((detector) =>
         detector.analyze(content, filePath, detectorSettings).catch((error) => {
@@ -106,7 +108,7 @@ export class Analyzer {
     let patterns = detectorResults.flat();
 
     // Apply severity filter
-    const minSeverity = options.minSeverity ?? mergedConfig.minSeverityForCheckpoint;
+    const minSeverity = options.minSeverity ?? mergedConfig.minSeverity;
     patterns = patterns.filter((p) => meetsSeverityThreshold(p.severity, minSeverity));
 
     // Apply severity overrides
@@ -175,32 +177,20 @@ export class Analyzer {
   /**
    * Update configuration
    */
-  updateConfig(config: Partial<ExtensionConfig>): void {
+  updateConfig(config: Partial<ResolvedConfig>): void {
     this.config = { ...this.config, ...config };
   }
 
   /**
    * Get current configuration
    */
-  getConfig(): ExtensionConfig {
+  getConfig(): ResolvedConfig {
     return { ...this.config };
   }
 
-  private shouldExcludeFile(filePath: string, config: ExtensionConfig): boolean {
+  private shouldExcludeFile(filePath: string, config: ResolvedConfig): boolean {
     // Check exclude paths
-    if (matchesGlob(filePath, config.excludePaths)) {
-      return true;
-    }
-
-    // Check exclude files
-    const fileName = filePath.split('/').pop() ?? '';
-    if (
-      config.excludeFiles.some((pattern) => {
-        // Simple wildcard matching
-        const regex = new RegExp(`^${pattern.replaceAll('.', '\\.').replaceAll('*', '.*')}$`);
-        return regex.test(fileName);
-      })
-    ) {
+    if (matchesGlob(filePath, config.exclude)) {
       return true;
     }
 
@@ -210,7 +200,7 @@ export class Analyzer {
   private getApplicableDetectors(
     language: SupportedLanguage | null,
     patternTypes?: PatternType[],
-    config?: ExtensionConfig,
+    config?: ResolvedConfig,
   ): Detector[] {
     return this.detectors.filter((detector) => {
       // Check if detector supports the language

@@ -64,121 +64,28 @@
       {
         "command": "codegateway.triggerCheckpoint",
         "title": "CodeGateway: Trigger Comprehension Checkpoint"
+      },
+      {
+        "command": "codegateway.initConfig",
+        "title": "CodeGateway: Create Config File"
+      },
+      {
+        "command": "codegateway.openConfig",
+        "title": "CodeGateway: Open Config File"
       }
     ],
-    "configuration": {
-      "title": "CodeGateway",
-      "properties": {
-        "codegateway.enabledPatterns": {
-          "type": "array",
-          "default": [
-            "generic_variable_name",
-            "inconsistent_naming",
-            "empty_catch_block",
-            "swallowed_error",
-            "missing_error_boundary",
-            "generic_error_message",
-            "hardcoded_secret",
-            "sql_concatenation",
-            "unsafe_eval",
-            "insecure_random",
-            "magic_number",
-            "todo_without_context",
-            "commented_out_code",
-            "overly_complex_function",
-            "placeholder_implementation"
-          ],
-          "description": "Pattern types to detect"
-        },
-        "codegateway.minSeverity": {
-          "type": "string",
-          "enum": ["info", "warning", "critical"],
-          "default": "info",
-          "description": "Minimum severity level to show"
-        },
-        "codegateway.excludePaths": {
-          "type": "array",
-          "default": [
-            "**/node_modules/**",
-            "**/dist/**",
-            "**/build/**",
-            "**/.git/**"
-          ],
-          "description": "Glob patterns for paths to exclude"
-        },
-        "codegateway.analyzeOnSave": {
-          "type": "boolean",
-          "default": true,
-          "description": "Analyze files automatically on save"
-        },
-        "codegateway.analyzeOnOpen": {
-          "type": "boolean",
-          "default": true,
-          "description": "Analyze files automatically when opened"
-        },
-        "codegateway.showInlineHints": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show inline decorations for detected patterns"
-        },
-        "codegateway.debounceMs": {
-          "type": "number",
-          "default": 500,
-          "description": "Debounce delay for analysis (ms)"
-        },
-        "codegateway.blockOnCritical": {
-          "type": "boolean",
-          "default": true,
-          "description": "Block commit when critical issues are found"
-        },
-        "codegateway.blockOnWarning": {
-          "type": "boolean",
-          "default": false,
-          "description": "Block commit when warnings are found"
-        },
-        "codegateway.showCheckpoint": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show comprehension checkpoint before commit"
-        },
-        "codegateway.genericVariableNames": {
-          "type": "array",
-          "items": { "type": "string" },
-          "default": [],
-          "markdownDescription": "Additional variable names to flag as generic (e.g., `['info', 'input']`). These are added to the built-in list."
-        },
-        "codegateway.loopVariableNames": {
-          "type": "array",
-          "items": { "type": "string" },
-          "default": [],
-          "markdownDescription": "Additional single-letter variable names allowed in loops (e.g., `['l', 'p']`). These are added to the built-in `i`, `j`, `k`, `n`, `m`."
-        },
-        "codegateway.coordinateVariableNames": {
-          "type": "array",
-          "items": { "type": "string" },
-          "default": [],
-          "markdownDescription": "Additional variable names allowed for coordinates/math (e.g., `['u', 'v']`). These are added to the built-in `x`, `y`, `z`, `w`."
-        },
-        "codegateway.genericErrorMessages": {
-          "type": "array",
-          "items": { "type": "string" },
-          "default": [],
-          "markdownDescription": "Additional error message patterns to flag as generic (e.g., `['operation failed', 'try again']`). These are added to the built-in list."
-        },
-        "codegateway.secretPatterns": {
-          "type": "array",
-          "items": { "type": "string" },
-          "default": [],
-          "markdownDescription": "Additional regex patterns to detect hardcoded secrets. These are added to the built-in list."
-        },
-        "codegateway.excludeFiles": {
-          "type": "array",
-          "items": { "type": "string" },
-          "default": ["*.min.js", "*.bundle.js"],
-          "description": "File patterns to exclude from analysis"
-        }
+    "jsonValidation": [
+      {
+        "fileMatch": ["codegateway.config.json", ".codegaterc.json", ".codegaterc"],
+        "url": "https://raw.githubusercontent.com/codegateway/codegateway/main/schema/codegateway.schema.json"
       }
-    },
+    ],
+    "languages": [
+      {
+        "id": "json",
+        "filenames": [".codegaterc"]
+      }
+    ],
     "menus": {
       "editor/context": [
         {

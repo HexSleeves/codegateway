@@ -1,6 +1,6 @@
 import { type AnalysisResult, Analyzer } from '@codegateway/core';
 import * as vscode from 'vscode';
-import { getConfig, getDebounceMs } from '../core/config';
+import { getResolvedConfig, getDebounceMs, isInlineHintsEnabled } from '../core/config';
 import type { DecorationManager, DiagnosticsManager, StatusBarManager } from '../ui';
 
 /**
@@ -124,7 +124,7 @@ export class FileAnalyzer {
       return null;
     }
 
-    const config = getConfig();
+    const config = getResolvedConfig();
 
     // Update status bar to show analyzing
     this.statusBarManager.showAnalyzing();
@@ -132,7 +132,7 @@ export class FileAnalyzer {
     try {
       const result = await this.analyzer.analyzeFile(document.getText(), document.uri.fsPath, {
         config,
-        minSeverity: config.minSeverityForCheckpoint,
+        minSeverity: config.minSeverity,
       });
 
       // Cache result
@@ -145,7 +145,7 @@ export class FileAnalyzer {
       const editor = vscode.window.visibleTextEditors.find(
         (e) => e.document.uri.toString() === document.uri.toString(),
       );
-      if (editor && config.showInlineHints) {
+      if (editor && isInlineHintsEnabled()) {
         this.decorationManager.applyDecorations(editor, result.patterns);
       }
 

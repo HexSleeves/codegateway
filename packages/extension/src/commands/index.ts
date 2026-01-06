@@ -1,5 +1,15 @@
 import * as vscode from 'vscode';
+import * as path from 'node:path';
 import type { FileAnalyzer } from '../analysis/fileAnalyzer';
+import {
+  getConfigFilePath,
+  invalidateConfigCache,
+} from '../core/config';
+import {
+  createDefaultConfigFile,
+  findConfigFile,
+  CONFIG_FILE_NAMES,
+} from '@codegateway/shared';
 
 export { registerGitCommands } from './git-commands.js';
 
@@ -93,6 +103,63 @@ export function registerCommands(
       vscode.window.showInformationMessage(
         'CodeGateway Dashboard coming soon! Check the Problems panel for detected patterns.',
       );
+    }),
+  );
+
+  // Create config file
+  context.subscriptions.push(
+    vscode.commands.registerCommand('codegateway.initConfig', async () => {
+      const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+      if (!workspaceFolder) {
+        vscode.window.showErrorMessage('No workspace folder open');
+        return;
+      }
+
+      const existingConfig = findConfigFile(workspaceFolder.uri.fsPath);
+      if (existingConfig) {
+        const action = await vscode.window.showWarningMessage(
+          `Config file already exists: ${path.basename(existingConfig)}`,
+          'Open It',
+          'Create New Anyway',
+        );
+        
+        if (action === 'Open It') {
+          const doc = await vscode.workspace.openTextDocument(existingConfig);
+          await vscode.window.showTextDocument(doc);
+          return;
+        } else if (action !== 'Create New Anyway') {
+          return;
+        }
+      }
+
+      const configPath = createDefaultConfigFile(workspaceFolder.uri.fsPath);
+      invalidateConfigCache();
+      
+      const doc = await vscode.workspace.openTextDocument(configPath);
+      await vscode.window.showTextDocument(doc);
+      vscode.window.showInformationMessage(`Created: ${CONFIG_FILE_NAMES[0]}`);
+    }),
+  );
+
+  // Open config file
+  context.subscriptions.push(
+    vscode.commands.registerCommand('codegateway.openConfig', async () => {
+      const configPath = getConfigFilePath();
+      
+      if (!configPath) {
+        const action = await vscode.window.showInformationMessage(
+          'No config file found. Create one?',
+          'Create Config',
+        );
+        
+        if (action === 'Create Config') {
+          await vscode.commands.executeCommand('codegateway.initConfig');
+        }
+        return;
+      }
+
+      const doc = await vscode.workspace.openTextDocument(configPath);
+      await vscode.window.showTextDocument(doc);
     }),
   );
 }

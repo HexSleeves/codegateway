@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CodeGateway Configuration",
+  "description": "Configuration file for CodeGateway - AI Code Review Trust Layer",
+  "type": "object",
+  "properties": {
+    "enabledPatterns": {
+      "type": "array",
+      "description": "Pattern types to detect. If not specified, all patterns are enabled.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "generic_variable_name",
+          "inconsistent_naming",
+          "empty_catch_block",
+          "swallowed_error",
+          "missing_error_boundary",
+          "generic_error_message",
+          "try_without_catch",
+          "hardcoded_secret",
+          "sql_concatenation",
+          "unsafe_eval",
+          "insecure_random",
+          "missing_input_validation",
+          "copy_paste_pattern",
+          "magic_number",
+          "todo_without_context",
+          "commented_out_code",
+          "overly_complex_function",
+          "placeholder_implementation",
+          "incomplete_edge_case",
+          "mock_data_in_production",
+          "framework_version_mismatch",
+          "unnecessary_abstraction",
+          "context_mismatch"
+        ]
+      }
+    },
+    "minSeverity": {
+      "type": "string",
+      "description": "Minimum severity level to report",
+      "enum": ["info", "warning", "critical"],
+      "default": "info"
+    },
+    "severityOverrides": {
+      "type": "object",
+      "description": "Override severity for specific patterns",
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["info", "warning", "critical"]
+      }
+    },
+    "exclude": {
+      "type": "array",
+      "description": "Glob patterns for paths to exclude from analysis",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/.git/**"
+      ]
+    },
+    "genericVariableNames": {
+      "type": "array",
+      "description": "Additional variable names to flag as generic (added to built-in list)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "loopVariableNames": {
+      "type": "array",
+      "description": "Additional single-letter variable names allowed in loops (added to i,j,k,n,m)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "coordinateVariableNames": {
+      "type": "array",
+      "description": "Additional variable names allowed for coordinates/math (added to x,y,z,w)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "genericErrorMessages": {
+      "type": "array",
+      "description": "Additional error message patterns to flag as generic",
+      "items": {
+        "type": "string"
+      }
+    },
+    "secretPatterns": {
+      "type": "array",
+      "description": "Additional regex patterns to detect hardcoded secrets",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blockOnCritical": {
+      "type": "boolean",
+      "description": "Block git commit when critical issues are found",
+      "default": true
+    },
+    "blockOnWarning": {
+      "type": "boolean",
+      "description": "Block git commit when warnings are found",
+      "default": false
+    },
+    "showCheckpoint": {
+      "type": "boolean",
+      "description": "Show comprehension checkpoint before commit",
+      "default": true
+    },
+    "showInlineHints": {
+      "type": "boolean",
+      "description": "Show inline decorations (wavy underlines) in VS Code",
+      "default": true
+    },
+    "debounceMs": {
+      "type": "number",
+      "description": "Analysis debounce delay in milliseconds",
+      "default": 500,
+      "minimum": 0
+    },
+    "analyzeOnOpen": {
+      "type": "boolean",
+      "description": "Analyze files when opened",
+      "default": true
+    },
+    "analyzeOnSave": {
+      "type": "boolean",
+      "description": "Analyze files when saved",
+      "default": true
+    }
+  },
+  "additionalProperties": false
+}

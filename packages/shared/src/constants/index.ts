@@ -116,28 +116,6 @@ export const PATTERN_METADATA: Record<
 export const ALL_PATTERN_TYPES: PatternType[] = Object.keys(PATTERN_METADATA) as PatternType[];
 
 /**
- * Default extension configuration
- */
-export const DEFAULT_CONFIG: ExtensionConfig = {
-  enabledPatterns: ALL_PATTERN_TYPES,
-  customPatterns: [],
-  severityOverrides: {},
-  excludePaths: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**'],
-  excludeFiles: ['*.min.js', '*.bundle.js'],
-
-  checkpointTrigger: 'pre_commit',
-  minSeverityForCheckpoint: 'warning',
-  allowSkip: true,
-  skipRequiresReason: false,
-
-  cloudSyncEnabled: false,
-
-  showInlineHints: true,
-  showStatusBarSummary: true,
-  notificationLevel: 'warnings',
-};
-
-/**
  * File extension to language mapping
  */
 export const EXTENSION_TO_LANGUAGE: Record<string, string> = {

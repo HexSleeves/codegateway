@@ -1,7 +1,13 @@
 import * as vscode from 'vscode';
 import { FileAnalyzer } from './analysis/fileAnalyzer';
 import { registerCommands, registerGitCommands } from './commands';
-import { isAnalyzeOnOpenEnabled, isAnalyzeOnSaveEnabled } from './core/config';
+import {
+  isAnalyzeOnOpenEnabled,
+  isAnalyzeOnSaveEnabled,
+  invalidateConfigCache,
+  getConfigFilePath,
+} from './core/config';
+import { CONFIG_FILE_NAMES } from '@codegateway/shared';
 import { DecorationManager, DiagnosticsManager, StatusBarManager } from './ui';
 
 let fileAnalyzer: FileAnalyzer;
@@ -47,6 +53,24 @@ export function deactivate(): void {
  * Register event listeners for document changes
  */
 function registerEventListeners(context: vscode.ExtensionContext): void {
+  // Watch for config file changes
+  const configWatcher = vscode.workspace.createFileSystemWatcher(
+    `**/{${CONFIG_FILE_NAMES.join(',')}}`,
+  );
+  
+  const onConfigChange = () => {
+    invalidateConfigCache();
+    vscode.window.showInformationMessage('CodeGateway: Config reloaded');
+    analyzeOpenDocuments();
+  };
+  
+  context.subscriptions.push(
+    configWatcher,
+    configWatcher.onDidChange(onConfigChange),
+    configWatcher.onDidCreate(onConfigChange),
+    configWatcher.onDidDelete(onConfigChange),
+  );
+
   // Analyze on document open
   context.subscriptions.push(
     vscode.workspace.onDidOpenTextDocument((document) => {
@@ -55,6 +79,13 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
       }
     }),
     vscode.workspace.onDidSaveTextDocument((document) => {
+      // Re-analyze config file changes
+      if (isConfigFile(document)) {
+        invalidateConfigCache();
+        analyzeOpenDocuments();
+        return;
+      }
+      
       if (isAnalyzeOnSaveEnabled() && isSupportedDocument(document)) {
         fileAnalyzer.analyzeDocumentNow(document);
       }
@@ -71,11 +102,6 @@ function registerEventListeners(context: vscode.ExtensionContext): void {
     }),
     vscode.workspace.onDidCloseTextDocument((document) => {
       fileAnalyzer.clearAnalysis(document);
-    }),
-    vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration('codegateway')) {
-        analyzeOpenDocuments();
-      }
     }),
   );
 }
@@ -97,4 +123,12 @@ function analyzeOpenDocuments(): void {
 function isSupportedDocument(document: vscode.TextDocument): boolean {
   const supportedLanguages = ['typescript', 'javascript', 'typescriptreact', 'javascriptreact'];
   return supportedLanguages.includes(document.languageId);
+}
+
+/**
+ * Check if a document is a CodeGateway config file
+ */
+function isConfigFile(document: vscode.TextDocument): boolean {
+  const fileName = document.uri.fsPath.split(/[\/\\]/).pop() ?? '';
+  return CONFIG_FILE_NAMES.includes(fileName);
 }
