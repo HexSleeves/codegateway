@@ -62,14 +62,10 @@ export class DecorationManager {
     };
 
     patterns.forEach((pattern) => {
-      const range = new vscode.Range(
-        new vscode.Position(pattern.startLine - 1, pattern.startColumn ?? 0),
-        new vscode.Position(
-          pattern.endLine - 1,
-          pattern.endColumn ?? editor.document.lineAt(pattern.endLine - 1).text.length,
-        ),
-      );
-      bySeverity[pattern.severity].push(range);
+      const range = this.getPatternRange(editor, pattern);
+      if (range) {
+        bySeverity[pattern.severity].push(range);
+      }
     });
 
     // Apply decorations
@@ -116,5 +112,52 @@ export class DecorationManager {
     // For gutter icons, we'd need to bundle actual icon files
     // For now, we'll skip gutter icons and rely on underlines
     return '';
+  }
+
+  /**
+   * Get the range for a pattern, handling missing column info
+   */
+  private getPatternRange(editor: vscode.TextEditor, pattern: DetectedPattern): vscode.Range | null {
+    const lineIndex = pattern.startLine - 1;
+    
+    // Validate line index
+    if (lineIndex < 0 || lineIndex >= editor.document.lineCount) {
+      return null;
+    }
+
+    const line = editor.document.lineAt(lineIndex);
+    
+    // If we have explicit column info, use it
+    if (pattern.startColumn !== undefined && pattern.endColumn !== undefined) {
+      return new vscode.Range(
+        new vscode.Position(lineIndex, pattern.startColumn),
+        new vscode.Position(pattern.endLine - 1, pattern.endColumn),
+      );
+    }
+
+    // Try to find the code snippet in the line to get precise positioning
+    if (pattern.codeSnippet) {
+      // Get first line of snippet (in case it's multiline)
+      const snippetFirstLine = pattern.codeSnippet.split('\n')[0].trim();
+      const lineText = line.text;
+      
+      // Try to find the snippet in the line
+      const snippetIndex = lineText.indexOf(snippetFirstLine);
+      if (snippetIndex !== -1) {
+        return new vscode.Range(
+          new vscode.Position(lineIndex, snippetIndex),
+          new vscode.Position(lineIndex, snippetIndex + snippetFirstLine.length),
+        );
+      }
+    }
+
+    // Fallback: use the non-whitespace portion of the line
+    const firstNonWhitespace = line.firstNonWhitespaceCharacterIndex;
+    const lastNonWhitespace = line.text.trimEnd().length;
+    
+    return new vscode.Range(
+      new vscode.Position(lineIndex, firstNonWhitespace),
+      new vscode.Position(pattern.endLine - 1, lastNonWhitespace),
+    );
   }
 }
