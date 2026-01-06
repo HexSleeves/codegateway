@@ -113,7 +113,7 @@ Create a `codegateway.config.json` in your project root:
   "minSeverity": "info",
   "exclude": ["**/node_modules/**", "**/dist/**"],
   "blockOnCritical": true,
-  
+
   // Extend built-in detection patterns
   "genericVariableNames": ["info", "input"],
   "coordinateVariableNames": ["u", "v"],
@@ -148,14 +148,45 @@ See [Commands Reference](./docs/commands.md) for the full list.
 
 ```
 codegateway/
-├── .devcontainer/   # VS Code dev container config
 ├── packages/
-│   ├── shared/      # Types, constants, and utilities
-│   ├── core/        # Analysis engine and detectors
-│   ├── cli/         # Command-line interface
-│   └── extension/   # VS Code extension
-├── docs/            # Documentation
-└── demo/            # Web demo
+│   ├── shared/           # Types, constants, and utilities
+│   │   └── src/
+│   │       ├── config/   # Configuration loading
+│   │       ├── constants/# Shared constants
+│   │       ├── types/    # TypeScript types
+│   │       └── utils/    # Utility functions
+│   │
+│   ├── core/             # Analysis engine
+│   │   └── src/
+│   │       ├── analyzer.ts
+│   │       ├── detectors/ # Pattern detectors
+│   │       │   ├── base.ts
+│   │       │   ├── naming.ts
+│   │       │   ├── security.ts
+│   │       │   ├── errorHandling.ts
+│   │       │   ├── codeQuality.ts
+│   │       │   └── utils.ts
+│   │       └── git/       # Git integration
+│   │
+│   ├── cli/              # Command-line interface
+│   │   └── src/
+│   │       ├── index.ts
+│   │       ├── commands/  # CLI commands
+│   │       └── utils/     # CLI utilities
+│   │
+│   └── extension/        # VS Code extension
+│       └── src/
+│           ├── extension.ts
+│           ├── analysis/  # File analysis
+│           ├── commands/  # VS Code commands
+│           ├── core/      # Config management
+│           ├── storage/   # Checkpoint storage
+│           ├── ui/        # Decorations, diagnostics, status bar
+│           ├── utils/     # Shared utilities
+│           └── webview/   # Checkpoint panel & templates
+│
+├── docs/                 # Documentation
+└── .devcontainer/        # VS Code dev container
 ```
 
 ## Development

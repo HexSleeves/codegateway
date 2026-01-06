@@ -1,0 +1,15 @@
+<div class="pattern {{SEVERITY}}">
+  <div class="pattern-header">
+    <span class="severity-badge {{SEVERITY}}">{{SEVERITY_ICON}} {{SEVERITY_UPPER}}</span>
+    <span class="pattern-type">{{PATTERN_TYPE}}</span>
+  </div>
+  <div class="pattern-location">Line {{LINE_NUMBER}}</div>
+  <div class="pattern-description">{{DESCRIPTION}}</div>
+  <pre class="code-snippet"><code>{{CODE_SNIPPET}}</code></pre>
+  <div class="pattern-explanation">{{EXPLANATION}}</div>
+  {{SUGGESTION_HTML}}
+  <label class="acknowledge-checkbox">
+    <input type="checkbox" name="acknowledge" value="{{INDEX}}" {{CHECKED}}>
+    I understand this issue
+  </label>
+</div>

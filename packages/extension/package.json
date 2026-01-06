@@ -76,14 +76,20 @@
     ],
     "jsonValidation": [
       {
-        "fileMatch": ["codegateway.config.json", ".codegaterc.json", ".codegaterc"],
+        "fileMatch": [
+          "codegateway.config.json",
+          ".codegaterc.json",
+          ".codegaterc"
+        ],
         "url": "https://raw.githubusercontent.com/codegateway/codegateway/main/schema/codegateway.schema.json"
       }
     ],
     "languages": [
       {
         "id": "json",
-        "filenames": [".codegaterc"]
+        "filenames": [
+          ".codegaterc"
+        ]
       }
     ],
     "menus": {
@@ -96,7 +102,7 @@
     }
   },
   "scripts": {
-    "build": "bun build src/extension.ts --outdir=dist --entry-naming=[dir]/extension.[ext] --external vscode --target=node --format=cjs --sourcemap=linked",
+    "build": "bun build src/extension.ts --outdir=dist --entry-naming=[dir]/extension.[ext] --external vscode --target=node --format=cjs --sourcemap=linked && cp -r src/webview/templates dist/templates",
     "dev": "bun build src/extension.ts --outdir=dist --entry-naming=[dir]/extension.[ext] --external vscode --target=node --format=cjs --sourcemap=linked --watch",
     "clean": "rm -rf dist out",
     "typecheck": "tsc --noEmit",

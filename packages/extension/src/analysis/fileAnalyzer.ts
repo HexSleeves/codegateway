@@ -1,7 +1,8 @@
 import { type AnalysisResult, Analyzer } from '@codegateway/core';
 import * as vscode from 'vscode';
-import { getDebounceMs, getResolvedConfig, isInlineHintsEnabled } from '../core/config';
-import type { DecorationManager, DiagnosticsManager, StatusBarManager } from '../ui';
+import { getDebounceMs, getResolvedConfig, isInlineHintsEnabled } from '../core/config.js';
+import type { DecorationManager, DiagnosticsManager, StatusBarManager } from '../ui/index.js';
+import { isSupportedLanguage } from '../utils/index.js';
 
 /**
  * Manages file analysis and result presentation
@@ -11,8 +12,8 @@ export class FileAnalyzer {
   private readonly diagnosticsManager: DiagnosticsManager;
   private readonly decorationManager: DecorationManager;
   private readonly statusBarManager: StatusBarManager;
-  private readonly analysisCache: Map<string, AnalysisResult> = new Map();
-  private readonly debounceTimers: Map<string, NodeJS.Timeout> = new Map();
+  private readonly analysisCache = new Map<string, AnalysisResult>();
+  private readonly debounceTimers = new Map<string, NodeJS.Timeout>();
 
   constructor(
     diagnosticsManager: DiagnosticsManager,
@@ -25,19 +26,15 @@ export class FileAnalyzer {
     this.statusBarManager = statusBarManager;
   }
 
-  /**
-   * Analyze a document with debouncing
-   */
+  /** Analyze a document with debouncing */
   async analyzeDocument(document: vscode.TextDocument): Promise<void> {
     const uri = document.uri.toString();
 
-    // Clear existing timer
     const existingTimer = this.debounceTimers.get(uri);
     if (existingTimer) {
       clearTimeout(existingTimer);
     }
 
-    // Set new debounced analysis
     const timer = setTimeout(async () => {
       await this.doAnalyze(document);
       this.debounceTimers.delete(uri);
@@ -46,11 +43,8 @@ export class FileAnalyzer {
     this.debounceTimers.set(uri, timer);
   }
 
-  /**
-   * Analyze a document immediately (no debounce)
-   */
+  /** Analyze a document immediately (no debounce) */
   async analyzeDocumentNow(document: vscode.TextDocument): Promise<AnalysisResult | null> {
-    // Cancel any pending debounced analysis
     const uri = document.uri.toString();
     const existingTimer = this.debounceTimers.get(uri);
     if (existingTimer) {
@@ -61,16 +55,12 @@ export class FileAnalyzer {
     return this.doAnalyze(document);
   }
 
-  /**
-   * Get cached analysis result for a document
-   */
+  /** Get cached analysis result for a document */
   getCachedResult(document: vscode.TextDocument): AnalysisResult | undefined {
     return this.analysisCache.get(document.uri.toString());
   }
 
-  /**
-   * Clear analysis for a document
-   */
+  /** Clear analysis for a document */
   clearAnalysis(document: vscode.TextDocument): void {
     const uri = document.uri.toString();
     this.analysisCache.delete(uri);
@@ -82,9 +72,7 @@ export class FileAnalyzer {
     }
   }
 
-  /**
-   * Clear all analyses
-   */
+  /** Clear all analyses */
   clearAll(): void {
     this.analysisCache.clear();
     this.diagnosticsManager.clearAll();
@@ -96,9 +84,7 @@ export class FileAnalyzer {
     this.statusBarManager.reset();
   }
 
-  /**
-   * Update decorations when editor becomes visible
-   */
+  /** Update decorations when editor becomes visible */
   updateDecorationsForEditor(editor: vscode.TextEditor): void {
     const result = this.analysisCache.get(editor.document.uri.toString());
     if (result) {
@@ -106,11 +92,8 @@ export class FileAnalyzer {
     }
   }
 
-  /**
-   * Dispose of resources
-   */
+  /** Dispose of resources */
   dispose(): void {
-    // Clear all timers
     for (const timer of this.debounceTimers.values()) {
       clearTimeout(timer);
     }
@@ -118,15 +101,11 @@ export class FileAnalyzer {
   }
 
   private async doAnalyze(document: vscode.TextDocument): Promise<AnalysisResult | null> {
-    // Check if this is a supported language
-    const supportedLanguages = ['typescript', 'javascript', 'typescriptreact', 'javascriptreact'];
-    if (!supportedLanguages.includes(document.languageId)) {
+    if (!isSupportedLanguage(document.languageId)) {
       return null;
     }
 
     const config = getResolvedConfig();
-
-    // Update status bar to show analyzing
     this.statusBarManager.showAnalyzing();
 
     try {
@@ -135,13 +114,9 @@ export class FileAnalyzer {
         minSeverity: config.minSeverity,
       });
 
-      // Cache result
       this.analysisCache.set(document.uri.toString(), result);
-
-      // Update diagnostics
       this.diagnosticsManager.updateDiagnostics(document.uri, result.patterns);
 
-      // Update decorations if editor is visible
       const editor = vscode.window.visibleTextEditors.find(
         (e) => e.document.uri.toString() === document.uri.toString(),
       );
@@ -149,9 +124,7 @@ export class FileAnalyzer {
         this.decorationManager.applyDecorations(editor, result.patterns);
       }
 
-      // Update status bar
       this.statusBarManager.update(result.patterns);
-
       return result;
     } catch (error) {
       console.error('CodeGateway analysis error:', error);
