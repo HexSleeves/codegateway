@@ -1,71 +1,78 @@
 # Configuration Guide
 
-CodeGateway is highly configurable. This guide covers all settings and how to
-customize them for your workflow.
+CodeGateway is configured via a JSON config file in your project. This guide covers
+all settings and how to customize them for your workflow.
 
-## Accessing Settings
+## Config File Locations
 
-### Via VS Code Settings UI
+CodeGateway searches for configuration in this order:
 
-1. Open Settings (`Ctrl+,` / `Cmd+,`)
-2. Search for "codegateway"
-3. Modify settings as needed
+1. `codegateway.config.json`
+2. `.codegaterc.json`
+3. `.codegaterc`
+4. `package.json` (under `"codegateway"` key)
 
-### Via settings.json
+The search starts in the current directory and traverses up to the filesystem root.
+
+## Creating a Config File
+
+### Via CLI
+
+```bash
+codegateway init
+```
+
+This creates `codegateway.config.json` with sensible defaults.
+
+### Via VS Code
 
 1. Open Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
-2. Run `Preferences: Open Settings (JSON)`
-3. Add CodeGateway settings
+2. Run `CodeGateway: Create Config File`
+
+### Manually
+
+Create `codegateway.config.json` in your project root:
+
+```json
+{
+  "minSeverity": "info",
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**"
+  ],
+  "blockOnCritical": true
+}
+```
 
 ## All Settings
 
 ### Pattern Detection
 
-#### `codegateway.enabledPatterns`
+#### `enabledPatterns`
 
-Array of pattern types to detect. Remove patterns you don't want to see.
+Array of pattern types to detect. If not specified, all patterns are enabled.
 
 ```json
 {
-  "codegateway.enabledPatterns": [
-    "generic_variable_name",
-    "inconsistent_naming",
+  "enabledPatterns": [
     "empty_catch_block",
-    "swallowed_error",
-    "missing_error_boundary",
-    "generic_error_message",
     "hardcoded_secret",
-    "sql_concatenation",
     "unsafe_eval",
-    "insecure_random",
-    "magic_number",
-    "todo_without_context",
-    "commented_out_code",
-    "overly_complex_function",
-    "placeholder_implementation"
+    "generic_variable_name"
   ]
 }
 ```
 
-To disable specific patterns, remove them from the array:
+See [Pattern Reference](./patterns.md) for the full list of pattern types.
+
+#### `minSeverity`
+
+Minimum severity level to report. Options: `"info"`, `"warning"`, `"critical"`
 
 ```json
 {
-  "codegateway.enabledPatterns": [
-    "empty_catch_block",
-    "hardcoded_secret",
-    "unsafe_eval"
-  ]
-}
-```
-
-#### `codegateway.minSeverity`
-
-Minimum severity level to display. Options: `"info"`, `"warning"`, `"critical"`
-
-```json
-{
-  "codegateway.minSeverity": "warning"
+  "minSeverity": "warning"
 }
 ```
 
@@ -75,13 +82,26 @@ Minimum severity level to display. Options: `"info"`, `"warning"`, `"critical"`
 | `"warning"` | Warnings and critical only |
 | `"critical"` | Critical patterns only |
 
-#### `codegateway.excludePaths`
+#### `severityOverrides`
+
+Override the default severity for specific patterns.
+
+```json
+{
+  "severityOverrides": {
+    "magic_number": "warning",
+    "todo_without_context": "critical"
+  }
+}
+```
+
+#### `exclude`
 
 Glob patterns for paths to exclude from analysis.
 
 ```json
 {
-  "codegateway.excludePaths": [
+  "exclude": [
     "**/node_modules/**",
     "**/dist/**",
     "**/build/**",
@@ -93,143 +113,142 @@ Glob patterns for paths to exclude from analysis.
 }
 ```
 
-### Analysis Triggers
-
-#### `codegateway.analyzeOnSave`
-
-Automatically analyze files when saved.
-
-```json
-{
-  "codegateway.analyzeOnSave": true
-}
-```
-
-#### `codegateway.analyzeOnOpen`
-
-Automatically analyze files when opened.
-
-```json
-{
-  "codegateway.analyzeOnOpen": true
-}
-```
-
-#### `codegateway.debounceMs`
-
-Delay before analyzing after typing stops (milliseconds).
-
-```json
-{
-  "codegateway.debounceMs": 500
-}
-```
-
-Lower values = faster feedback, higher CPU usage.
-Higher values = less CPU, delayed feedback.
-
-### Visual Settings
-
-#### `codegateway.showInlineHints`
-
-Show wavy underlines on detected patterns.
-
-```json
-{
-  "codegateway.showInlineHints": true
-}
-```
-
-### Git Integration
-
-#### `codegateway.blockOnCritical`
-
-Block git commits when critical issues are found.
-
-```json
-{
-  "codegateway.blockOnCritical": true
-}
-```
-
-#### `codegateway.blockOnWarning`
-
-Block git commits when warnings are found.
-
-```json
-{
-  "codegateway.blockOnWarning": false
-}
-```
-
-#### `codegateway.showCheckpoint`
-
-Show comprehension checkpoint UI before commit.
-
-```json
-{
-  "codegateway.showCheckpoint": true
-}
-```
-
 ### Detector Customization
 
-These settings allow you to extend the built-in detection patterns with your own custom values.
+#### `genericVariableNames`
 
-#### `codegateway.genericVariableNames`
-
-Additional variable names to flag as generic. These are **added** to the built-in list (`data`, `result`, `temp`, `item`, etc.).
+Additional variable names to flag as generic. These are **added** to the built-in list
+(`data`, `result`, `temp`, `item`, etc.).
 
 ```json
 {
-  "codegateway.genericVariableNames": ["info", "input", "output", "params"]
+  "genericVariableNames": ["info", "input", "output", "params"]
 }
 ```
 
-#### `codegateway.loopVariableNames`
+#### `loopVariableNames`
 
-Additional single-letter variable names allowed in loop contexts. These are **added** to the built-in list (`i`, `j`, `k`, `n`, `m`).
+Additional single-letter variable names allowed in loop contexts. These are **added**
+to the built-in list (`i`, `j`, `k`, `n`, `m`).
 
 ```json
 {
-  "codegateway.loopVariableNames": ["l", "p", "q"]
+  "loopVariableNames": ["l", "p", "q"]
 }
 ```
 
-#### `codegateway.coordinateVariableNames`
+#### `coordinateVariableNames`
 
-Additional variable names allowed for coordinates/math contexts. These are **added** to the built-in list (`x`, `y`, `z`, `w`).
+Additional variable names allowed for coordinates/math contexts. These are **added**
+to the built-in list (`x`, `y`, `z`, `w`).
 
 ```json
 {
-  "codegateway.coordinateVariableNames": ["u", "v", "r", "theta"]
+  "coordinateVariableNames": ["u", "v", "r", "theta"]
 }
 ```
 
-#### `codegateway.genericErrorMessages`
+#### `genericErrorMessages`
 
-Additional error message patterns to flag as generic. These are **added** to the built-in list (`"something went wrong"`, `"an error occurred"`, etc.).
+Additional error message patterns to flag as generic. These are **added** to the
+built-in list (`"something went wrong"`, `"an error occurred"`, etc.).
 
 ```json
 {
-  "codegateway.genericErrorMessages": ["operation failed", "try again later", "contact support"]
+  "genericErrorMessages": ["operation failed", "try again later", "contact support"]
 }
 ```
 
-#### `codegateway.secretPatterns`
+#### `secretPatterns`
 
-Additional regex patterns to detect hardcoded secrets. These are **added** to the built-in patterns for API keys, passwords, tokens, etc.
+Additional regex patterns to detect hardcoded secrets. These are **added** to the
+built-in patterns for API keys, passwords, tokens, etc.
 
 ```json
 {
-  "codegateway.secretPatterns": [
+  "secretPatterns": [
     "my_service_key\\s*=\\s*[\"'][^\"\']+[\"\']",
     "CUSTOM_TOKEN_[A-Z0-9]+"
   ]
 }
 ```
 
-> **Note:** Patterns are JavaScript regular expressions. Remember to double-escape backslashes in JSON.
+> **Note:** Patterns are JavaScript regular expressions. Remember to double-escape
+> backslashes in JSON.
+
+### Git Integration
+
+#### `blockOnCritical`
+
+Block git commits when critical issues are found.
+
+```json
+{
+  "blockOnCritical": true
+}
+```
+
+#### `blockOnWarning`
+
+Block git commits when warnings are found.
+
+```json
+{
+  "blockOnWarning": false
+}
+```
+
+#### `showCheckpoint`
+
+Show comprehension checkpoint UI before commit.
+
+```json
+{
+  "showCheckpoint": true
+}
+```
+
+### UI Settings (VS Code only)
+
+#### `showInlineHints`
+
+Show inline decorations (wavy underlines) in the editor.
+
+```json
+{
+  "showInlineHints": true
+}
+```
+
+#### `debounceMs`
+
+Delay before analyzing after typing stops (milliseconds).
+
+```json
+{
+  "debounceMs": 500
+}
+```
+
+#### `analyzeOnOpen`
+
+Automatically analyze files when opened.
+
+```json
+{
+  "analyzeOnOpen": true
+}
+```
+
+#### `analyzeOnSave`
+
+Automatically analyze files when saved.
+
+```json
+{
+  "analyzeOnSave": true
+}
+```
 
 ## Configuration Profiles
 
@@ -239,12 +258,10 @@ Maximum detection, block on issues:
 
 ```json
 {
-  "codegateway.minSeverity": "info",
-  "codegateway.blockOnCritical": true,
-  "codegateway.blockOnWarning": true,
-  "codegateway.showCheckpoint": true,
-  "codegateway.analyzeOnSave": true,
-  "codegateway.analyzeOnOpen": true
+  "minSeverity": "info",
+  "blockOnCritical": true,
+  "blockOnWarning": true,
+  "showCheckpoint": true
 }
 ```
 
@@ -254,12 +271,10 @@ Good balance of feedback and flow:
 
 ```json
 {
-  "codegateway.minSeverity": "info",
-  "codegateway.blockOnCritical": true,
-  "codegateway.blockOnWarning": false,
-  "codegateway.showCheckpoint": true,
-  "codegateway.analyzeOnSave": true,
-  "codegateway.analyzeOnOpen": true
+  "minSeverity": "info",
+  "blockOnCritical": true,
+  "blockOnWarning": false,
+  "showCheckpoint": true
 }
 ```
 
@@ -269,12 +284,10 @@ Only critical issues, no blocking:
 
 ```json
 {
-  "codegateway.minSeverity": "critical",
-  "codegateway.blockOnCritical": false,
-  "codegateway.blockOnWarning": false,
-  "codegateway.showCheckpoint": false,
-  "codegateway.analyzeOnSave": true,
-  "codegateway.analyzeOnOpen": false
+  "minSeverity": "critical",
+  "blockOnCritical": false,
+  "blockOnWarning": false,
+  "showCheckpoint": false
 }
 ```
 
@@ -284,14 +297,14 @@ Only security-related patterns:
 
 ```json
 {
-  "codegateway.enabledPatterns": [
+  "enabledPatterns": [
     "hardcoded_secret",
     "sql_concatenation",
     "unsafe_eval",
     "insecure_random"
   ],
-  "codegateway.minSeverity": "warning",
-  "codegateway.blockOnCritical": true
+  "minSeverity": "warning",
+  "blockOnCritical": true
 }
 ```
 
@@ -301,8 +314,8 @@ Allow common graphics/math variable names:
 
 ```json
 {
-  "codegateway.coordinateVariableNames": ["u", "v", "r", "theta", "phi"],
-  "codegateway.loopVariableNames": ["t"]
+  "coordinateVariableNames": ["u", "v", "r", "theta", "phi"],
+  "loopVariableNames": ["t"]
 }
 ```
 
@@ -312,77 +325,86 @@ Add company-specific secret patterns:
 
 ```json
 {
-  "codegateway.secretPatterns": [
+  "secretPatterns": [
     "ACME_API_KEY_[A-Za-z0-9]+",
     "internal_token\\s*[:=]\\s*[\"'][^\"\']+[\"\']"
   ]
 }
 ```
 
-## Workspace vs User Settings
+## Using package.json
 
-### User Settings (Global)
-
-Applies to all projects. Good for personal preferences.
-
-Location: `~/.config/Code/User/settings.json`
-
-### Workspace Settings (Per-Project)
-
-Applies to a specific project. Good for team standards.
-
-Location: `.vscode/settings.json` in project root
+You can also configure CodeGateway in your `package.json`:
 
 ```json
-// .vscode/settings.json
 {
-  "codegateway.minSeverity": "warning",
-  "codegateway.blockOnCritical": true,
-  "codegateway.excludePaths": [
-    "**/generated/**",
-    "**/migrations/**"
-  ]
+  "name": "my-project",
+  "version": "1.0.0",
+  "codegateway": {
+    "minSeverity": "warning",
+    "blockOnCritical": true,
+    "exclude": ["**/generated/**"]
+  }
 }
 ```
 
-Commit this file to share settings with your team.
+## Config File Schema
 
-## Environment-Specific Configuration
+VS Code provides autocomplete and validation for config files. The schema is
+available at:
 
-### Disable in CI/CD
-
-The extension only runs in VS Code. For CI, use the CLI:
-
-```bash
-codegateway analyze . --severity warning --fail-on critical
+```
+https://raw.githubusercontent.com/codegateway/codegateway/main/schema/codegateway.schema.json
 ```
 
-### Different Settings for Different Projects
+Add it to your config file:
 
-Use workspace settings (`.vscode/settings.json`) in each project.
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/codegateway/codegateway/main/schema/codegateway.schema.json",
+  "minSeverity": "warning"
+}
+```
+
+## CLI Usage with Config
+
+The CLI automatically loads the config file:
+
+```bash
+# Uses config file from current directory
+codegateway analyze .
+
+# Override config file location
+codegateway analyze . --config ./custom-config.json
+
+# CLI flags override config file
+codegateway analyze . --severity critical
+```
 
 ## Troubleshooting Configuration
 
+### Config Not Loading
+
+1. Check file name is correct (`codegateway.config.json`, `.codegaterc.json`, etc.)
+2. Ensure valid JSON syntax
+3. In VS Code, run `CodeGateway: Open Config File` to verify which config is loaded
+
 ### Settings Not Taking Effect
 
-1. Reload VS Code (`Ctrl+Shift+P` → `Developer: Reload Window`)
-2. Check for syntax errors in settings.json
-3. Verify setting names are correct (case-sensitive)
+1. Save the config file
+2. VS Code auto-reloads on config changes
+3. For CLI, re-run the command
 
-### Too Many/Few Patterns Detected
+### Validation Errors
 
-- Adjust `minSeverity` to filter by importance
-- Modify `enabledPatterns` to include/exclude specific patterns
-- Add paths to `excludePaths` for generated code
+If VS Code shows validation errors in your config file, check:
 
-### Performance Issues
-
-- Increase `debounceMs` (e.g., 1000)
-- Disable `analyzeOnOpen` for large projects
-- Add large directories to `excludePaths`
+- Property names are correct (case-sensitive)
+- Values are the correct type (string, number, array, etc.)
+- Enum values are valid (`"info"`, `"warning"`, `"critical"` for severity)
 
 ## Next Steps
 
 - [Pattern Reference](./patterns.md) - Understand what each pattern means
 - [Git Integration](./git-integration.md) - Configure pre-commit hooks
-- [CLI Reference](./cli.md) - Configuration for command-line usage
+- [CLI Reference](./cli.md) - Command-line configuration options

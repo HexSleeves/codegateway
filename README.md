@@ -106,19 +106,22 @@ bun packages/cli/dist/index.js analyze . --fail-on critical
 
 ## Configuration
 
+Create a `codegateway.config.json` in your project root:
+
 ```json
 {
-  "codegateway.minSeverity": "info",
-  "codegateway.analyzeOnSave": true,
-  "codegateway.blockOnCritical": true,
-  "codegateway.excludePaths": ["**/node_modules/**"],
+  "minSeverity": "info",
+  "exclude": ["**/node_modules/**", "**/dist/**"],
+  "blockOnCritical": true,
   
   // Extend built-in detection patterns
-  "codegateway.genericVariableNames": ["info", "input"],
-  "codegateway.coordinateVariableNames": ["u", "v"],
-  "codegateway.secretPatterns": ["MY_CUSTOM_KEY_[A-Z0-9]+"]
+  "genericVariableNames": ["info", "input"],
+  "coordinateVariableNames": ["u", "v"],
+  "secretPatterns": ["MY_CUSTOM_KEY_[A-Z0-9]+"]
 }
 ```
+
+Or create one via CLI: `codegateway init`
 
 See [Configuration Guide](./docs/configuration.md) for all options.
 
