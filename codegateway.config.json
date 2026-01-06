@@ -1,0 +1,18 @@
+{
+  "minSeverity": "info",
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**"
+  ],
+  "blockOnCritical": true,
+  "blockOnWarning": false,
+  "llm": {
+    "enabled": true,
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "features": ["explanations", "questions", "semantic_review"],
+    "maxTokens": 1024,
+    "temperature": 0.3
+  }
+}

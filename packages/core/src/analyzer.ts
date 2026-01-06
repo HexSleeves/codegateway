@@ -1,8 +1,10 @@
 import type {
+  ComprehensionQuestion,
   DetectedPattern,
-  DetectorSettings,
+  EnhancedPattern,
   PatternType,
   ResolvedConfig,
+  SemanticReviewResult,
   Severity,
   SupportedLanguage,
 } from '@codegateway/shared';
@@ -37,6 +39,12 @@ export interface AnalysisResult {
   patterns: DetectedPattern[];
   analyzedAt: Date;
   durationMs: number;
+  /** LLM-enhanced pattern data (if LLM enabled) */
+  enhancements?: EnhancedPattern[];
+  /** LLM-generated comprehension questions (if LLM enabled) */
+  questions?: ComprehensionQuestion[];
+  /** LLM semantic review result (if LLM enabled) */
+  semanticReview?: SemanticReviewResult;
 }
 
 /**
@@ -230,4 +238,116 @@ export interface AnalysisSummary {
   bySeverity: Record<Severity, number>;
   byType: Record<PatternType, number>;
   totalDurationMs: number;
+}
+
+// Import LLM enhancer for optional enhancement
+import { PatternEnhancer } from './llm/index.js';
+
+/**
+ * Enhanced analyzer that can use LLM for better explanations and questions
+ */
+export class EnhancedAnalyzer extends Analyzer {
+  private readonly enhancer: PatternEnhancer | null = null;
+
+  constructor(config?: Partial<ResolvedConfig>) {
+    super(config);
+    const resolvedConfig = this.getConfig();
+    if (resolvedConfig.llm?.enabled) {
+      this.enhancer = new PatternEnhancer(resolvedConfig.llm);
+    }
+  }
+
+  /**
+   * Check if LLM enhancement is available
+   */
+  async isLLMAvailable(): Promise<boolean> {
+    if (!this.enhancer) return false;
+    return this.enhancer.isAvailable();
+  }
+
+  /**
+   * Analyze a file with optional LLM enhancement
+   */
+  async analyzeFileEnhanced(
+    content: string,
+    filePath: string,
+    options: AnalyzerOptions & {
+      /** Skip LLM enhancement even if configured */
+      skipLLM?: boolean;
+    } = {},
+  ): Promise<AnalysisResult> {
+    // First, run static analysis
+    const result = await this.analyzeFile(content, filePath, options);
+
+    // If no patterns or LLM disabled, return static result
+    if (result.patterns.length === 0 || options.skipLLM || !this.enhancer) {
+      return result;
+    }
+
+    // Enhance with LLM
+    try {
+      const config = this.getConfig();
+
+      // Run enhancements in parallel
+      const [enhancements, questions, semanticReview] = await Promise.all([
+        config.llm.features.includes('explanations') || config.llm.features.includes('questions')
+          ? this.enhancer.enhancePatterns(content, filePath, result.patterns)
+          : Promise.resolve([]),
+        config.llm.features.includes('questions')
+          ? this.enhancer.generateQuestions(content, filePath, result.patterns, 3)
+          : Promise.resolve([]),
+        config.llm.features.includes('semantic_review')
+          ? this.enhancer.semanticReview(content, filePath, result.patterns)
+          : Promise.resolve(null),
+      ]);
+
+      const enhancedResult: AnalysisResult = {
+        ...result,
+      };
+
+      if (enhancements.length > 0) {
+        enhancedResult.enhancements = enhancements;
+      }
+      if (questions.length > 0) {
+        enhancedResult.questions = questions;
+      }
+      if (semanticReview) {
+        enhancedResult.semanticReview = semanticReview;
+      }
+
+      return enhancedResult;
+    } catch (error) {
+      console.error('LLM enhancement failed, returning static results:', error);
+      return result;
+    }
+  }
+
+  /**
+   * Generate comprehension questions for patterns
+   */
+  async generateQuestions(
+    content: string,
+    filePath: string,
+    patterns: DetectedPattern[],
+    count: number = 3,
+  ): Promise<ComprehensionQuestion[]> {
+    if (!this.enhancer) {
+      return [];
+    }
+    return this.enhancer.generateQuestions(content, filePath, patterns, count);
+  }
+
+  /**
+   * Perform semantic review of code
+   */
+  async semanticReview(
+    content: string,
+    filePath: string,
+    existingPatterns?: DetectedPattern[],
+  ): Promise<SemanticReviewResult | null> {
+    if (!this.enhancer) {
+      return null;
+    }
+    return this.enhancer.semanticReview(content, filePath, existingPatterns);
+  }
 }

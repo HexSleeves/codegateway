@@ -245,6 +245,13 @@ export interface CodeGatewayConfig {
 
   /** Analyze files when saved */
   analyzeOnSave?: boolean;
+
+  // ============================================
+  // LLM SETTINGS
+  // ============================================
+
+  /** LLM configuration for enhanced analysis */
+  llm?: Partial<LLMConfig>;
 }
 
 /**
@@ -285,6 +292,9 @@ export interface ResolvedConfig {
   debounceMs: number;
   analyzeOnOpen: boolean;
   analyzeOnSave: boolean;
+
+  // LLM settings
+  llm: LLMConfig;
 }
 
 // ============================================
@@ -299,4 +309,98 @@ export interface AnalyzedFile {
   content: string;
   gitStatus: GitStatus;
   lastAnalyzedAt: Date;
+}
+
+// ============================================================================
+// LLM Configuration Types
+// ============================================================================
+
+/** Supported LLM providers */
+export type LLMProvider = 'openai' | 'anthropic' | 'ollama';
+
+/** LLM feature flags */
+export type LLMFeature = 'explanations' | 'questions' | 'semantic_review';
+
+/** LLM configuration */
+export interface LLMConfig {
+  /** Enable LLM enhancement */
+  enabled: boolean;
+  /** LLM provider to use */
+  provider: LLMProvider;
+  /** Model name (e.g., 'gpt-4o-mini', 'claude-3-haiku', 'llama3') */
+  model: string;
+  /** API key (can also use environment variable) */
+  apiKey?: string;
+  /** Base URL for API (for Ollama or custom endpoints) */
+  baseUrl?: string;
+  /** Which features to enable */
+  features: LLMFeature[];
+  /** Maximum tokens for responses */
+  maxTokens?: number;
+  /** Temperature for generation (0-1) */
+  temperature?: number;
+}
+
+/** Default LLM configuration */
+export const DEFAULT_LLM_CONFIG: LLMConfig = {
+  enabled: false,
+  provider: 'openai',
+  model: 'gpt-4o-mini',
+  features: ['explanations', 'questions'],
+  maxTokens: 1024,
+  temperature: 0.3,
+};
+
+/** A comprehension question about code */
+export interface ComprehensionQuestion {
+  /** Unique identifier */
+  id: string;
+  /** The question text */
+  question: string;
+  /** Type of question */
+  type: 'multiple_choice' | 'true_false' | 'free_text' | 'code_trace';
+  /** For multiple choice: the options */
+  options?: string[];
+  /** The correct answer (for auto-grading) */
+  correctAnswer?: string | number;
+  /** Explanation of the correct answer */
+  answerExplanation?: string;
+  /** Related pattern ID if applicable */
+  relatedPatternId?: string;
+  /** Difficulty level */
+  difficulty: 'easy' | 'medium' | 'hard';
+}
+
+/** Enhanced pattern with LLM-generated content */
+export interface EnhancedPattern {
+  /** Original pattern ID */
+  patternId: string;
+  /** Enhanced explanation (more contextual than static) */
+  enhancedExplanation?: string;
+  /** Specific fix suggestion for this code */
+  specificSuggestion?: string;
+  /** Generated comprehension questions */
+  questions?: ComprehensionQuestion[];
+  /** Risk assessment */
+  riskAssessment?: {
+    level: 'low' | 'medium' | 'high';
+    reasoning: string;
+  };
+}
+
+/** Result of semantic code review */
+export interface SemanticReviewResult {
+  /** Overall assessment */
+  summary: string;
+  /** Issues found that static analysis missed */
+  additionalIssues: Array<{
+    description: string;
+    severity: 'info' | 'warning' | 'critical';
+    line?: number;
+    suggestion?: string;
+  }>;
+  /** Positive observations */
+  positives?: string[];
+  /** Confidence in the review (0-1) */
+  confidence: number;
 }

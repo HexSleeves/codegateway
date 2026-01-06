@@ -2,7 +2,11 @@ import { CONFIG_FILE_NAMES } from '@codegateway/shared';
 import * as vscode from 'vscode';
 import { FileAnalyzer } from './analysis/fileAnalyzer.js';
 import { registerCommands, registerGitCommands } from './commands/index.js';
-import { invalidateConfigCache, isAnalyzeOnOpenEnabled, isAnalyzeOnSaveEnabled } from './core/config.js';
+import {
+  invalidateConfigCache,
+  isAnalyzeOnOpenEnabled,
+  isAnalyzeOnSaveEnabled,
+} from './core/config.js';
 import { DecorationManager, DiagnosticsManager, StatusBarManager } from './ui/index.js';
 import { isConfigFile, isSupportedDocument } from './utils/index.js';
 

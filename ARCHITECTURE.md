@@ -371,3 +371,105 @@ cd packages/core && bun run build
 # Package extension
 cd packages/extension && bun run package
 ```
+
+---
+
+## LLM Enhancement Layer
+
+CodeGateway includes an optional LLM enhancement layer that can provide better explanations and generate comprehension questions.
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Static Analysis                          │
+│              (Fast, Deterministic, Private)                 │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+                    Patterns Detected?
+                         │    │
+                        No   Yes
+                         │    │
+                         ▼    ▼
+                       Done  ┌─────────────────────────────────┐
+                             │   LLM Enhancement (Optional)    │
+                             │   - Better explanations         │
+                             │   - Comprehension questions     │
+                             │   - Semantic review             │
+                             └─────────────────────────────────┘
+```
+
+### LLM Module Structure
+
+```
+packages/core/src/llm/
+├── index.ts              # Exports
+├── types.ts              # LLM-specific types
+├── enhancer.ts           # PatternEnhancer class
+└── providers/
+    ├── base.ts           # BaseLLMProvider abstract class
+    ├── openai.ts         # OpenAI provider
+    ├── anthropic.ts      # Anthropic provider
+    └── ollama.ts         # Ollama (local) provider
+```
+
+### Key Components
+
+| Component | Description |
+|-----------|-------------|
+| `PatternEnhancer` | Main class that uses LLM to enhance patterns |
+| `BaseLLMProvider` | Abstract base class for LLM providers |
+| `OpenAIProvider` | OpenAI API implementation |
+| `AnthropicProvider` | Anthropic Claude API implementation |
+| `OllamaProvider` | Local Ollama implementation |
+
+### Adding a New LLM Provider
+
+1. Create `packages/core/src/llm/providers/myProvider.ts`:
+
+```typescript
+import { BaseLLMProvider } from './base.js';
+import type { ChatMessage, CompletionResponse } from '../types.js';
+
+export class MyProvider extends BaseLLMProvider {
+  readonly name = 'myprovider';
+
+  async isAvailable(): Promise<boolean> {
+    // Check if API is accessible
+  }
+
+  async complete(messages: ChatMessage[]): Promise<CompletionResponse> {
+    // Implement API call
+  }
+}
+```
+
+2. Export from `packages/core/src/llm/providers/index.ts`
+
+3. Add to `PatternEnhancer.createProvider()` switch statement
+
+4. Add provider type to `packages/shared/src/types/index.ts`:
+
+```typescript
+export type LLMProvider = 'openai' | 'anthropic' | 'ollama' | 'myprovider';
+```
+
+### EnhancedAnalyzer
+
+The `EnhancedAnalyzer` class extends `Analyzer` to add LLM capabilities:
+
+```typescript
+const analyzer = new EnhancedAnalyzer(config);
+
+// Check if LLM is available
+const available = await analyzer.isLLMAvailable();
+
+// Analyze with LLM enhancement
+const result = await analyzer.analyzeFileEnhanced(content, filePath);
+
+// result.patterns - Static analysis patterns
+// result.enhancements - LLM-enhanced explanations
+// result.questions - Comprehension questions
+// result.semanticReview - Deep code review
+```

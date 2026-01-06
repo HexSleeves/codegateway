@@ -2,9 +2,9 @@ import type {
   CheckpointStatus,
   ComprehensionCheckpoint,
   DetectedPattern,
-} from "@codegateway/shared";
-import * as vscode from "vscode";
-import { generateCheckpointHtml } from "./checkpoint-html.js";
+} from '@codegateway/shared';
+import * as vscode from 'vscode';
+import { generateCheckpointHtml } from './checkpoint-html.js';
 
 /** Result from a checkpoint interaction */
 export interface CheckpointResult {
@@ -14,7 +14,7 @@ export interface CheckpointResult {
 }
 
 interface WebviewMessage {
-  type: "proceed" | "skip" | "cancel";
+  type: 'proceed' | 'skip' | 'cancel';
   acknowledged?: number[];
   reason?: string;
 }
@@ -24,7 +24,7 @@ interface WebviewMessage {
  */
 export class CheckpointPanel {
   public static currentPanel: CheckpointPanel | undefined;
-  public static readonly viewType = "codegateway.checkpoint";
+  public static readonly viewType = 'codegateway.checkpoint';
 
   private readonly panel: vscode.WebviewPanel;
   private readonly disposables: vscode.Disposable[] = [];
@@ -37,7 +37,7 @@ export class CheckpointPanel {
     this.panel.webview.onDidReceiveMessage(
       (message) => this.handleMessage(message),
       null,
-      this.disposables
+      this.disposables,
     );
 
     this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
@@ -47,7 +47,7 @@ export class CheckpointPanel {
   public static createOrShow(
     extensionUri: vscode.Uri,
     patterns: DetectedPattern[],
-    file: string
+    file: string,
   ): Promise<CheckpointResult> {
     const column = vscode.window.activeTextEditor?.viewColumn;
 
@@ -58,26 +58,23 @@ export class CheckpointPanel {
 
     const panel = vscode.window.createWebviewPanel(
       CheckpointPanel.viewType,
-      "CodeGateway Checkpoint",
+      'CodeGateway Checkpoint',
       column || vscode.ViewColumn.One,
-      { enableScripts: true, retainContextWhenHidden: true }
+      { enableScripts: true, retainContextWhenHidden: true },
     );
 
     CheckpointPanel.currentPanel = new CheckpointPanel(panel);
     return CheckpointPanel.currentPanel.showCheckpoint(patterns, file);
   }
 
-  private showCheckpoint(
-    patterns: DetectedPattern[],
-    file: string
-  ): Promise<CheckpointResult> {
+  private showCheckpoint(patterns: DetectedPattern[], file: string): Promise<CheckpointResult> {
     this.checkpoint = {
       id: `ckpt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-      type: "pre_commit",
+      type: 'pre_commit',
       patterns,
       file,
       questions: [],
-      status: "pending",
+      status: 'pending',
     };
 
     this.panel.webview.html = generateCheckpointHtml(patterns, file);
@@ -89,24 +86,24 @@ export class CheckpointPanel {
 
   private handleMessage(message: WebviewMessage): void {
     switch (message.type) {
-      case "proceed":
+      case 'proceed':
         this.resolvePromise?.({
-          status: "passed",
+          status: 'passed',
           acknowledgedPatterns: message.acknowledged ?? [],
         });
         this.dispose();
         break;
 
-      case "skip":
+      case 'skip':
         this.resolvePromise?.({
-          status: "skipped",
-          skipReason: message.reason ?? "",
+          status: 'skipped',
+          skipReason: message.reason ?? '',
         });
         this.dispose();
         break;
 
-      case "cancel":
-        this.resolvePromise?.({ status: "failed" });
+      case 'cancel':
+        this.resolvePromise?.({ status: 'failed' });
         this.dispose();
         break;
     }

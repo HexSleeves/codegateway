@@ -45,6 +45,16 @@ export const DEFAULT_CONFIG: ResolvedConfig = {
   debounceMs: 500,
   analyzeOnOpen: true,
   analyzeOnSave: true,
+
+  // LLM settings
+  llm: {
+    enabled: false,
+    provider: 'openai',
+    model: 'gpt-4o-mini',
+    features: ['explanations', 'questions'],
+    maxTokens: 1024,
+    temperature: 0.3,
+  },
 };
 
 /**
@@ -121,6 +131,11 @@ export function resolveConfig(userConfig: CodeGatewayConfig): ResolvedConfig {
     debounceMs: userConfig.debounceMs ?? DEFAULT_CONFIG.debounceMs,
     analyzeOnOpen: userConfig.analyzeOnOpen ?? DEFAULT_CONFIG.analyzeOnOpen,
     analyzeOnSave: userConfig.analyzeOnSave ?? DEFAULT_CONFIG.analyzeOnSave,
+
+    llm: {
+      ...DEFAULT_CONFIG.llm,
+      ...userConfig.llm,
+    },
   };
 }
 

@@ -1,5 +1,5 @@
 import type { Analyzer } from '@codegateway/core';
-import type { DetectedPattern, Severity } from '@codegateway/shared';
+import type { DetectedPattern, EnhancedPattern, Severity } from '@codegateway/shared';
 
 const SEVERITY_ICONS: Record<Severity, string> = {
   critical: '\u274c',
@@ -9,19 +9,30 @@ const SEVERITY_ICONS: Record<Severity, string> = {
 
 const SUMMARY_WIDTH = 50;
 
-export function printPatterns(patterns: DetectedPattern[]): void {
+export function printPatterns(patterns: DetectedPattern[], enhancements?: EnhancedPattern[]): void {
   const byFile = groupByFile(patterns);
+  const enhancementMap = enhancements
+    ? new Map(enhancements.map((e) => [e.patternId, e]))
+    : new Map();
 
   for (const [file, filePatterns] of byFile) {
     console.log(`\n${file}`);
     console.log('='.repeat(file.length));
     for (const pattern of filePatterns) {
+      const enhancement = enhancementMap.get(pattern.id);
+
       console.log(
         `  ${SEVERITY_ICONS[pattern.severity]} Line ${pattern.startLine}: ${pattern.description}`,
       );
-      console.log(`     ${pattern.explanation}`);
-      if (pattern.suggestion) {
-        console.log(`     \u2794 ${pattern.suggestion}`);
+
+      // Use enhanced explanation if available, otherwise default
+      const explanation = enhancement?.enhancedExplanation ?? pattern.explanation;
+      console.log(`     ${explanation}`);
+
+      // Use specific suggestion if available, otherwise default
+      const suggestion = enhancement?.specificSuggestion ?? pattern.suggestion;
+      if (suggestion) {
+        console.log(`     \u2794 ${suggestion}`);
       }
     }
   }

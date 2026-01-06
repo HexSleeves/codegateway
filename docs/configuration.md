@@ -408,3 +408,99 @@ If VS Code shows validation errors in your config file, check:
 - [Pattern Reference](./patterns.md) - Understand what each pattern means
 - [Git Integration](./git-integration.md) - Configure pre-commit hooks
 - [CLI Reference](./cli.md) - Command-line configuration options
+
+## LLM Enhancement (Optional)
+
+CodeGateway can optionally use LLMs to provide better explanations and generate comprehension questions.
+
+### Enabling LLM
+
+Add to your config file:
+
+```json
+{
+  "llm": {
+    "enabled": true,
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "features": ["explanations", "questions"]
+  }
+}
+```
+
+Or use the `--llm` flag with the CLI:
+
+```bash
+codegateway analyze . --llm
+```
+
+### Supported Providers
+
+| Provider | Models | API Key Env Var |
+|----------|--------|-----------------|
+| `openai` | `gpt-4o-mini`, `gpt-4o`, `gpt-4-turbo` | `OPENAI_API_KEY` |
+| `anthropic` | `claude-3-haiku-20240307`, `claude-3-sonnet-20240229` | `ANTHROPIC_API_KEY` |
+| `ollama` | Any local model (e.g., `llama3`, `codellama`) | None (local) |
+
+### LLM Features
+
+| Feature | Description |
+|---------|-------------|
+| `explanations` | Generate context-specific explanations for detected patterns |
+| `questions` | Generate comprehension questions for checkpoints |
+| `semantic_review` | Deep code review to find issues static analysis misses |
+
+### Configuration Options
+
+```json
+{
+  "llm": {
+    "enabled": true,
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "apiKey": "sk-...",           // Optional: defaults to env var
+    "baseUrl": "https://...",      // Optional: for custom endpoints
+    "features": ["explanations", "questions", "semantic_review"],
+    "maxTokens": 1024,             // Max response tokens
+    "temperature": 0.3             // 0-1, lower = more focused
+  }
+}
+```
+
+### Using Ollama (Local LLM)
+
+For privacy-conscious setups, use Ollama for local inference:
+
+1. Install Ollama: https://ollama.ai
+2. Pull a model: `ollama pull llama3`
+3. Configure:
+
+```json
+{
+  "llm": {
+    "enabled": true,
+    "provider": "ollama",
+    "model": "llama3",
+    "baseUrl": "http://localhost:11434"
+  }
+}
+```
+
+### Privacy Considerations
+
+- **Static analysis** (default): Code never leaves your machine
+- **LLM enhancement**: Code is sent to the configured provider's API
+- **Ollama**: Code stays local (recommended for sensitive projects)
+
+### Cost Considerations
+
+LLM API calls have costs:
+
+| Provider | Approximate Cost |
+|----------|------------------|
+| OpenAI gpt-4o-mini | ~$0.001 per file |
+| OpenAI gpt-4o | ~$0.01 per file |
+| Anthropic Claude Haiku | ~$0.001 per file |
+| Ollama | Free (local compute) |
+
+Use `--llm` selectively or only enable for critical reviews.
